@@ -3,6 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Tier 3 Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: a Hikma-blue band carries the title; the summary tiles sit on its
    lower edge, then changes, search and the molecule table as white cards.
@@ -16,13 +19,18 @@
 color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);
-font:15px/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif}
+font:15px/1.55 "Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,
+"Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+/* Plus Jakarta Sans: rounded, friendly, still businesslike. Where a
+   network blocks Google Fonts the page falls back to Segoe UI unchanged. */
+button,input,select{font-family:inherit}
 .band{background:var(--blue);color:#fff;border-bottom:4px solid var(--coral)}
 .band-in{max-width:1200px;margin:0 auto;padding:30px 20px 70px;display:flex;
 flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:18px}
 .eyebrow{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.12em;
 text-transform:uppercase;color:#ffb0ad}
-h1{margin:0;font-size:32px;line-height:1.15;letter-spacing:-.01em}
+h1{margin:0;font-size:34px;line-height:1.1;letter-spacing:-.02em;
+font-weight:800}
 .sub{margin:8px 0 0;color:#c9d4e6;max-width:62ch;font-size:15px}
 .stamp{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
@@ -41,7 +49,8 @@ transition:transform .15s,border-color .15s}
 .stat:hover{transform:translateY(-2px);border-color:var(--blue-line)}
 .stat[aria-pressed=true]{border-color:var(--blue);
 box-shadow:0 0 0 2px var(--blue),var(--shadow)}
-.stat b{font-size:30px;line-height:1;color:var(--blue);
+.stat b{font-size:32px;line-height:1;color:var(--blue);font-weight:800;
+letter-spacing:-.02em;
 font-variant-numeric:tabular-nums}
 .stat span{font-size:13px;color:var(--muted);line-height:1.3}
 .stat.key{background:var(--coral-soft);border-color:#ffcfcc}
@@ -74,7 +83,7 @@ tr.row{cursor:pointer;transition:background .12s}
 tr.row:hover td{background:#fafbfd}
 tr.row[aria-expanded=true] td{background:#fafbfd}
 tr.row:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.mol{font-weight:700;color:var(--blue);display:flex;align-items:center;gap:8px}
+.mol{font-weight:700;color:var(--blue);font-size:15.5px;display:flex;align-items:center;gap:8px}
 .mol:after{content:"";width:7px;height:7px;border-right:2px solid var(--grey);
 border-bottom:2px solid var(--grey);transform:rotate(-45deg);
 transition:transform .15s;margin-left:2px}
