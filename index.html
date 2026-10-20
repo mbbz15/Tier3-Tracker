@@ -4,93 +4,137 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Tier 3 Tracker</title>
 <style>
-:root{--bg:#f6f8f7;--card:#fff;--fg:#17211e;--muted:#5d6b66;--line:#dbe3e0;
---soft:#eef3f1;--acc:#0f6b5c;--acc-s:#e1f0ec;--ok:#1d7a46;--ok-s:#e3f3e9;
---warn:#9a6200;--warn-s:#fbf0d9;--bad:#b42318;--bad-s:#fbe6e3;--off:#6f7d78;
---off-s:#eef1f0;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1513;--card:#161e1b;
---fg:#e4ebe8;--muted:#97a6a0;--line:#2a3632;--soft:#1c2623;--acc:#5cc4ae;
---acc-s:#16312b;--ok:#6fd39a;--ok-s:#163223;--warn:#f0bd5c;--warn-s:#352914;
---bad:#ff8a7d;--bad-s:#3a1c19;--off:#8a9893;--off-s:#1e2724;
-color-scheme:dark}}
+/* Layout: a Hikma-blue band carries the title; the summary tiles sit on its
+   lower edge, then changes, search and the molecule table as white cards.
+   Colours follow the Hikma logo: coral-orange for attention, deep blue for
+   structure, white everywhere else. Deliberately light only. */
+:root{--blue:#13294b;--blue-2:#1f3d6e;--blue-soft:#e9eef7;--blue-line:#d5deec;
+--coral:#ff5c57;--coral-ink:#c4302b;--coral-soft:#ffeceb;
+--amber:#9a5b00;--amber-soft:#fff3dc;--grey:#6b7686;--grey-soft:#f0f2f5;
+--bg:#f5f7fa;--card:#fff;--fg:#1b2333;--muted:#5f6b7c;--line:#e4e8ee;
+--shadow:0 1px 2px rgba(19,41,75,.06),0 4px 14px rgba(19,41,75,.07);
+color-scheme:light}
+*{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);
-font:15px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
-.wrap{max-width:1200px;margin:0 auto;padding:24px 16px 56px;display:grid;
-gap:18px}
-header{display:flex;flex-wrap:wrap;justify-content:space-between;
-align-items:flex-end;gap:10px}
-h1{margin:0;font-size:26px}
-.sub{margin:4px 0 0;color:var(--muted);max-width:70ch}
-.stamp{font:12.5px Consolas,ui-monospace,monospace;color:var(--muted);
-text-align:right}
-.banner{padding:10px 14px;border-radius:8px;background:var(--bad-s);
-color:var(--bad);font-weight:600}
-.banner.warn{background:var(--warn-s);color:var(--warn)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;
-padding:11px 13px;text-align:left;font:inherit;color:inherit;cursor:pointer;
-display:grid;gap:2px}
-.stat:hover,.stat[aria-pressed=true]{border-color:var(--acc)}
-.stat[aria-pressed=true]{box-shadow:inset 0 0 0 1px var(--acc)}
-.stat b{font-size:23px;font-variant-numeric:tabular-nums}
-.stat span{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;
-color:var(--muted)}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.bar input,.bar select{padding:8px 10px;border:1px solid var(--line);
-border-radius:6px;background:var(--card);color:var(--fg);font:inherit}
-.bar input{flex:1 1 240px;min-width:0}
-.count{color:var(--muted);font-size:13px}
-.box{overflow-x:auto;background:var(--card);border:1px solid var(--line);
-border-radius:8px}
-table{border-collapse:collapse;width:100%;min-width:900px}
-th{position:sticky;top:0;background:var(--soft);text-align:left;
-font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;
-color:var(--muted);padding:9px 11px;border-bottom:1px solid var(--line);
+font:15px/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif}
+.band{background:var(--blue);color:#fff;border-bottom:4px solid var(--coral)}
+.band-in{max-width:1200px;margin:0 auto;padding:30px 20px 70px;display:flex;
+flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:18px}
+.eyebrow{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.12em;
+text-transform:uppercase;color:#ffb0ad}
+h1{margin:0;font-size:32px;line-height:1.15;letter-spacing:-.01em}
+.sub{margin:8px 0 0;color:#c9d4e6;max-width:62ch;font-size:15px}
+.stamp{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+color:#fff;border-radius:999px;padding:4px 12px;font-size:12.5px;
 white-space:nowrap}
-td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-tr.row{cursor:pointer}tr.row:hover td{background:var(--soft)}
-tr.row:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
-.mol{font-weight:600}.dim{color:var(--muted);font-size:13px}
-.mono{font-family:Consolas,ui-monospace,monospace;font-size:12.5px;
+.wrap{max-width:1200px;margin:-48px auto 0;padding:0 20px 56px;display:grid;
+gap:20px}
+.banner{padding:12px 16px;border-radius:12px;background:var(--coral-soft);
+color:var(--coral-ink);font-weight:600;border:1px solid #ffcfcc}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;
+padding:16px 16px 14px;text-align:left;font:inherit;color:inherit;
+cursor:pointer;display:grid;gap:4px;box-shadow:var(--shadow);
+transition:transform .15s,border-color .15s}
+.stat:hover{transform:translateY(-2px);border-color:var(--blue-line)}
+.stat[aria-pressed=true]{border-color:var(--blue);
+box-shadow:0 0 0 2px var(--blue),var(--shadow)}
+.stat b{font-size:30px;line-height:1;color:var(--blue);
 font-variant-numeric:tabular-nums}
-.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;
-border-radius:999px;margin:0 4px 4px 0;white-space:nowrap}
-.ok{background:var(--ok-s);color:var(--ok)}
-.warn{background:var(--warn-s);color:var(--warn)}
-.bad{background:var(--bad-s);color:var(--bad)}
-.off{background:var(--off-s);color:var(--off)}
-.acc{background:var(--acc-s);color:var(--acc)}
-tr.detail td{background:var(--soft);padding:14px 16px}
-.detail h3{margin:12px 0 6px;font-size:12px;text-transform:uppercase;
-letter-spacing:.05em;color:var(--muted)}
+.stat span{font-size:13px;color:var(--muted);line-height:1.3}
+.stat.key{background:var(--coral-soft);border-color:#ffcfcc}
+.stat.key b{color:var(--coral-ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+box-shadow:var(--shadow)}
+.changes{padding:16px 20px}
+.changes h2{margin:0 0 6px;font-size:16px;color:var(--blue)}
+.changes ul{margin:0;padding-left:18px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1 1 280px;min-width:0;position:relative}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+color:var(--muted)}
+.bar input,.bar select{width:100%;padding:12px 14px 12px 40px;
+border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--fg);font:inherit;box-shadow:var(--shadow)}
+.bar select{width:auto;padding:12px 16px}
+.bar input:focus,.bar select:focus{outline:2px solid var(--blue);
+outline-offset:1px}
+.count{color:var(--muted);font-size:13px}
+.box{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+th{position:sticky;top:0;background:var(--blue-soft);text-align:left;
+font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;
+color:var(--blue-2);font-weight:700;padding:12px 16px;white-space:nowrap}
+th:first-child{border-top-left-radius:14px}
+th:last-child{border-top-right-radius:14px}
+td{padding:14px 16px;border-top:1px solid var(--line);vertical-align:top}
+tr.row{cursor:pointer;transition:background .12s}
+tr.row:hover td{background:#fafbfd}
+tr.row[aria-expanded=true] td{background:#fafbfd}
+tr.row:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.mol{font-weight:700;color:var(--blue);display:flex;align-items:center;gap:8px}
+.mol:after{content:"";width:7px;height:7px;border-right:2px solid var(--grey);
+border-bottom:2px solid var(--grey);transform:rotate(-45deg);
+transition:transform .15s;margin-left:2px}
+tr.row[aria-expanded=true] .mol:after{transform:rotate(45deg)}
+.dim{color:var(--muted);font-size:13px}
+.mono{font-variant-numeric:tabular-nums;font-size:13px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;
+border-radius:999px;margin:0 4px 5px 0;white-space:nowrap}
+.bad{background:var(--coral-soft);color:var(--coral-ink)}
+.warn{background:var(--amber-soft);color:var(--amber)}
+.ok{background:var(--blue-soft);color:var(--blue-2)}
+.off{background:var(--grey-soft);color:var(--grey)}
+.acc{background:var(--coral);color:#fff}
+.t3{background:var(--blue);color:#fff}
+tr.detail td{background:#fafbfd;padding:4px 16px 20px;border-top:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;
+padding:16px 18px}
+.detail h3{margin:16px 0 8px;font-size:12px;text-transform:uppercase;
+letter-spacing:.07em;color:var(--blue-2)}
 .detail h3:first-child{margin-top:0}
 .inner{min-width:0;width:100%;border-collapse:collapse}
-.inner td,.inner th{position:static;background:none;padding:5px 8px;
-font-size:13px}
-.changes{background:var(--card);border:1px solid var(--line);
-border-radius:8px;padding:12px 16px}
-.changes h2{margin:0 0 6px;font-size:15px}
-.changes ul{margin:0;padding-left:18px}
+.inner th{position:static;background:none;padding:6px 10px;color:var(--muted);
+border-radius:0}
+.inner td{padding:8px 10px;font-size:13.5px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;
+color:var(--muted);align-items:center}
 footer{color:var(--muted);font-size:12.5px}
 .notes{color:var(--muted);font-size:12.5px}
 .notes summary{cursor:pointer}
 .notes ul{margin:6px 0 0;padding-left:18px}
-</style></head><body><div class="wrap">
-<header><div><h1>Tier 3 Tracker</h1>
-<p class="sub">Health Canada Tier 3 shortage-list molecules, matched against
-Hikma's US injectables catalog and the List of Drugs for Exceptional
-Importation and Sale. Read-only; updated every Monday.</p></div>
-<div class="stamp" id="stamp"></div></header>
+@media (max-width:640px){h1{font-size:26px}.stamp{align-items:flex-start}
+.band-in{padding-bottom:64px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="band"><div class="band-in"><div>
+<p class="eyebrow">Hikma Canada &middot; Commercial</p>
+<h1>Tier 3 Tracker</h1>
+<p class="sub">Every molecule on Health Canada's Tier 3 shortage list, with
+its shortage reports, Hikma's matching product and who is cleared to import
+it. Updated every Monday. Click any molecule for the details.</p></div>
+<div class="stamp" id="stamp"></div></div></div>
+<div class="wrap">
 <div id="banners"></div>
 <div class="stats" id="stats"></div>
-<div class="changes" id="changes"></div>
-<div class="bar"><input id="q" type="search" aria-label="Search"
-placeholder="Search molecule, company, importer or product">
+<div class="card changes" id="changes"></div>
+<div class="bar"><div class="search"><svg width="16" height="16"
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/>
+<path d="m20 20-3.5-3.5"/></svg><input id="q" type="search"
+aria-label="Search" placeholder="Search a molecule, company or importer">
+</div>
 <select id="stage" aria-label="Stage"><option value="">All stages</option>
 <option>Watching</option><option>Reviewing</option><option>Pursuing</option>
 <option>Parked</option></select><span class="count" id="count"></span></div>
-<div class="box"><table><thead><tr><th>Molecule</th><th>Hikma</th>
+<div class="legend"><span><span class="pill bad">Actual shortage</span>
+<span class="pill warn">Anticipated</span><span class="pill t3">Tier 3</span>
+</span><span><span class="pill ok">Importer active</span>
+<span class="pill warn">Ending within 30 days</span>
+<span class="pill off">Expired</span></span></div>
+<div class="card box"><table><thead><tr><th>Molecule</th><th>Hikma</th>
 <th>Shortage</th><th>Importation list</th><th>Stage</th><th>Notes</th>
 </tr></thead><tbody id="rows"></tbody></table></div>
 <div id="notes" class="notes"></div>
@@ -106,8 +150,9 @@ return isNaN(x)?d:x.toLocaleDateString("en-CA",{year:"numeric",
 month:"short",day:"numeric"})}
 var quick="",open={},COLS=DATA.show_notes?6:4;
 var age=Math.floor((Date.now()-new Date(DATA.run_date+"T00:00:00"))/864e5);
-$("#stamp").innerHTML="Updated "+esc(fmt(DATA.run_date))+"<br>"+
-"Importation list issued "+esc(fmt(DATA.issued)||"unknown");
+$("#stamp").innerHTML='<span class="chip">Updated '+esc(fmt(DATA.run_date))+
+'</span><span class="chip">Import list issued '+
+esc(fmt(DATA.issued)||"unknown")+'</span>';
 var b="";
 if(age>DATA.stale_days)b+='<div class="banner">This tracker has not '+
 'updated since '+esc(fmt(DATA.run_date))+' ('+age+' days). The weekly '+
@@ -129,15 +174,16 @@ var R=DATA.rows;
 function live(r){return r.imports.filter(function(i){
 return i.state==="Active"||i.state==="Expiring"})}
 var Q=[["","Molecules",function(){return true}],
-["hikma","Hikma carries",function(r){return!!r.hikma_us}],
+["hikma","Hikma carries it",function(r){return!!r.hikma_us}],
 ["open","Open shortage",function(r){return r.open>0}],
 ["live","Active importer",function(r){return live(r).length>0}],
-["gap","Hikma carries, no active importer",function(r){
+["gap","Hikma carries it, nobody importing",function(r){
 return!!r.hikma_us&&!live(r).length}],
-["soon","Import ending in 30 days",function(r){
+["soon","Import ending within 30 days",function(r){
 return r.imports.some(function(i){return i.state==="Expiring"})}]];
 function stats(){$("#stats").innerHTML=Q.map(function(q){
-return '<button class="stat" data-q="'+q[0]+'" aria-pressed="'+
+return '<button class="stat'+(q[0]==="gap"?" key":"")+'" data-q="'+q[0]+
+'" aria-pressed="'+
 (quick===q[0])+'"><b>'+R.filter(q[2]).length+'</b><span>'+q[1]+
 '</span></button>'}).join("")}
 function stCls(s){return/Actual/.test(s)?"bad":/Anticipated|To be/.test(s)?
@@ -145,7 +191,7 @@ function stCls(s){return/Actual/.test(s)?"bad":/Anticipated|To be/.test(s)?
 function shCell(r){if(r.status==="No report found")
 return'<span class="dim">No report found</span>';
 var h='<span class="pill '+stCls(r.status)+'">'+esc(r.status)+'</span>';
-if(r.tier3==="Yes")h+='<span class="pill bad">Tier 3</span>';
+if(r.tier3==="Yes")h+='<span class="pill t3">Tier 3</span>';
 if(r.start||r.end)h+='<div class="dim mono">'+esc(fmt(r.start))+
 (r.end?" to "+esc(fmt(r.end)):"")+'</div>';
 if(r.companies)h+='<div class="dim">'+esc(r.companies)+'</div>';return h}
@@ -158,7 +204,7 @@ var h=l.map(function(i){return'<span class="pill '+(i.state==="Expiring"?
 if(x)h+='<span class="pill off">'+x+' expired</span>';return h}
 function detail(r){var h='<h3>Hikma</h3><div>'+(r.hikma_us?esc(r.hikma_us):
 '<span class="dim">No match in the Hikma US injectables catalog</span>')+
-(r.hikma_ca==="Yes"?' <span class="pill acc">In Hikma Canada portfolio'+
+(r.hikma_ca==="Yes"?' <span class="pill ok">In Hikma Canada portfolio'+
 '</span>':'')+'</div>';
 h+='<h3>Shortage reports</h3>';
 h+=r.reports.length?'<table class="inner"><tr><th>Status</th><th>Tier 3'+
@@ -183,8 +229,8 @@ esc(fmt(i.added))+'</td><td class="mono">'+esc(fmt(i.cutoff)||i.cutoff_raw)+
 'check form</span>':'')+'</td></tr>'}).join("")+'</table>':
 '<div class="dim">No entries.</div>';
 if(r.changed)h+='<h3>Changed since last update</h3><div>'+esc(r.changed)+
-'</div>';return'<tr class="detail"><td colspan="'+COLS+'" class="detail">'+h+
-'</td></tr>'}
+'</div>';return'<tr class="detail"><td colspan="'+COLS+'" class="detail">'+
+'<div class="panel">'+h+'</div></td></tr>'}
 function render(){stats();var q=$("#q").value.trim().toLowerCase(),
 st=$("#stage").value,f=Q.filter(function(x){return x[0]===quick})[0][2];
 var list=R.filter(function(r){if(st&&r.stage!==st)return false;
@@ -195,7 +241,7 @@ $("#rows").innerHTML=list.length?list.map(function(r){
 var s={Pursuing:"ok",Reviewing:"warn",Parked:"off"}[r.stage]||"acc";
 return'<tr class="row" tabindex="0" data-i="'+r.i+'" aria-expanded="'+
 !!open[r.i]+'"><td><div class="mol">'+esc(r.name)+'</div><div class="dim">'+
-esc(r.forms)+'</div></td><td>'+(r.hikma_us?'<span class="pill acc">Match'+
+esc(r.forms)+'</div></td><td>'+(r.hikma_us?'<span class="pill acc">Hikma has it'+
 '</span>':'<span class="dim">-</span>')+'</td><td>'+shCell(r)+'</td><td>'+
 impCell(r)+'</td>'+(DATA.show_notes?'<td><span class="pill '+s+'">'+
 esc(r.stage)+'</span></td><td class="dim">'+esc(r.notes)+'</td>':'')+
