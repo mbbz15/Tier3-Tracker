@@ -110,7 +110,9 @@ padding:3px 9px;white-space:nowrap}
 gap:18px}
 .idea{border:1px solid var(--line);border-radius:16px;padding:20px 22px;
 display:flex;flex-direction:column;gap:12px;background:var(--white)}
-.idea.first{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
+.idea{cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.idea:hover,.idea:focus-visible{border-color:var(--coral);
+box-shadow:0 0 0 1px var(--coral);outline:none}
 .idea-head{display:flex;justify-content:space-between;align-items:start;gap:12px}
 .rank{font:800 15px/1 var(--display);color:var(--slate)}
 .idea h3{margin:4px 0 0;font:800 24px/1.1 var(--display);color:var(--navy);
@@ -415,8 +417,8 @@ function unwatched(){
 
 /* ---------- suggestions ---------- */
 function card(r,k){
-  return '<article class="idea'+(k===0?" first":"")+'"><div class="idea-head"><div><div class="rank">#'+(k+1)+'</div><h3>'+esc(r.name)+'</h3><div class="sub">'+esc(r.forms)+badge(r)+'</div></div><div class="pts"><b>'+r.score+'</b><span>of '+DATA.max_points+' points</span></div></div>'+
-  '<p class="act">'+esc(r.action)+'</p><ul class="why">'+r.reasons.map(x=>'<li'+(x.indexOf("Hikma")===0?' class="mine"':"")+'>'+esc(x)+'</li>').join("")+'</ul><button class="open" data-i="'+r.i+'">See the details</button></article>';
+  return '<article class="idea" data-i="'+r.i+'" role="button" tabindex="0" aria-label="'+esc(r.name)+', show details"><div class="idea-head"><div><div class="rank">#'+(k+1)+'</div><h3>'+esc(r.name)+'</h3><div class="sub">'+esc(r.forms)+badge(r)+'</div></div><div class="pts"><b>'+r.score+'</b><span>of '+DATA.max_points+' points</span></div></div>'+
+  '<p class="act">'+esc(r.action)+'</p><ul class="why">'+r.reasons.map(x=>'<li'+(x.indexOf("Hikma")===0?' class="mine"':"")+'>'+esc(x)+'</li>').join("")+'</ul></article>';
 }
 function suggestions(){
   if(!ideas.length)return'<p class="none">No molecule on the list has an open shortage right now, so there is nothing to suggest.</p>';
@@ -547,6 +549,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&openRow!==null){hide();return}
+  if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches(".idea[data-i]")){e.preventDefault();show(+e.target.dataset.i);return}
   if(e.target.matches&&e.target.matches(".tab")&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){
     const k=TABS.findIndex(t=>t[0]===tab),n=(k+(e.key==="ArrowRight"?1:TABS.length-1))%TABS.length;go(TABS[n][0],true)}
 });
