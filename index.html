@@ -5,274 +5,383 @@
 <title>Tier 3 Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <style>
-/* Layout: a Hikma-blue band carries the title; the summary tiles sit on its
-   lower edge, then changes, search and the molecule table as white cards.
-   Colours follow the Hikma logo: coral-orange for attention, deep blue for
-   structure, white everywhere else. Deliberately light only. */
-:root{--blue:#13294b;--blue-2:#1f3d6e;--blue-soft:#e9eef7;--blue-line:#d5deec;
---coral:#ff5c57;--coral-ink:#c4302b;--coral-soft:#ffeceb;
---amber:#9a5b00;--amber-soft:#fff3dc;--grey:#6b7686;--grey-soft:#f0f2f5;
---bg:#f5f7fa;--card:#fff;--fg:#1b2333;--muted:#5f6b7c;--line:#e4e8ee;
---shadow:0 1px 2px rgba(19,41,75,.06),0 4px 14px rgba(19,41,75,.07);
-color-scheme:light}
+/* The page is a supply calendar. Every Tier 3 molecule is a lane on one
+   shared time axis: coral bars are shortages, blue bars are import
+   permits, the coral line is today. A gap is coral with no blue under it,
+   and you can see it without reading a word. Hikma coral and blue on
+   white; Bricolage Grotesque for names and headings, Atkinson Hyperlegible
+   (drawn for low-vision readers) for everything you read. Light only. */
+:root{
+--white:#ffffff;--navy:#13294b;--navy-2:#2b4475;--mist:#eef2f8;
+--line:#e4e9f1;--coral:#ff5c57;--coral-ink:#c4302b;--coral-tint:#ffe9e8;
+--ink:#17213a;--slate:#5b6880;--fog:#cbd3df;
+--display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+--text:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+--names:290px;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);
-font:15px/1.55 "Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,
-"Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
-/* Plus Jakarta Sans: rounded, friendly, still businesslike. Where a
-   network blocks Google Fonts the page falls back to Segoe UI unchanged. */
-button,input,select{font-family:inherit}
-.band{background:var(--blue);color:#fff;border-bottom:4px solid var(--coral)}
-.band-in{max-width:1200px;margin:0 auto;padding:30px 20px 70px;display:flex;
-flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:18px}
-.eyebrow{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.12em;
-text-transform:uppercase;color:#ffb0ad}
-h1{margin:0;font-size:34px;line-height:1.1;letter-spacing:-.02em;
-font-weight:800}
-.sub{margin:8px 0 0;color:#c9d4e6;max-width:62ch;font-size:15px}
-.stamp{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
-color:#fff;border-radius:999px;padding:4px 12px;font-size:12.5px;
-white-space:nowrap}
-.wrap{max-width:1200px;margin:-48px auto 0;padding:0 20px 56px;display:grid;
-gap:20px}
-.banner{padding:12px 16px;border-radius:12px;background:var(--coral-soft);
-color:var(--coral-ink);font-weight:600;border:1px solid #ffcfcc}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-gap:12px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;
-padding:16px 16px 14px;text-align:left;font:inherit;color:inherit;
-cursor:pointer;display:grid;gap:4px;box-shadow:var(--shadow);
-transition:transform .15s,border-color .15s}
-.stat:hover{transform:translateY(-2px);border-color:var(--blue-line)}
-.stat[aria-pressed=true]{border-color:var(--blue);
-box-shadow:0 0 0 2px var(--blue),var(--shadow)}
-.stat b{font-size:32px;line-height:1;color:var(--blue);font-weight:800;
-letter-spacing:-.02em;
-font-variant-numeric:tabular-nums}
-.stat span{font-size:13px;color:var(--muted);line-height:1.3}
-.stat.key{background:var(--coral-soft);border-color:#ffcfcc}
-.stat.key b{color:var(--coral-ink)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
-box-shadow:var(--shadow)}
-.changes{padding:16px 20px}
-.changes h2{margin:0 0 6px;font-size:16px;color:var(--blue)}
-.changes ul{margin:0;padding-left:18px}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.search{flex:1 1 280px;min-width:0;position:relative}
-.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);
-color:var(--muted)}
-.bar input,.bar select{width:100%;padding:12px 14px 12px 40px;
-border:1px solid var(--line);border-radius:999px;background:var(--card);
-color:var(--fg);font:inherit;box-shadow:var(--shadow)}
-.bar select{width:auto;padding:12px 16px}
-.bar input:focus,.bar select:focus{outline:2px solid var(--blue);
-outline-offset:1px}
-.count{color:var(--muted);font-size:13px}
-.box{overflow-x:auto}
-table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
-th{position:sticky;top:0;background:var(--blue-soft);text-align:left;
-font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;
-color:var(--blue-2);font-weight:700;padding:12px 16px;white-space:nowrap}
-th:first-child{border-top-left-radius:14px}
-th:last-child{border-top-right-radius:14px}
-td{padding:14px 16px;border-top:1px solid var(--line);vertical-align:top}
-tr.row{cursor:pointer;transition:background .12s}
-tr.row:hover td{background:#fafbfd}
-tr.row[aria-expanded=true] td{background:#fafbfd}
-tr.row:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.mol{font-weight:700;color:var(--blue);font-size:15.5px;display:flex;align-items:center;gap:8px}
-.mol:after{content:"";width:7px;height:7px;border-right:2px solid var(--grey);
-border-bottom:2px solid var(--grey);transform:rotate(-45deg);
-transition:transform .15s;margin-left:2px}
-tr.row[aria-expanded=true] .mol:after{transform:rotate(45deg)}
-.dim{color:var(--muted);font-size:13px}
-.mono{font-variant-numeric:tabular-nums;font-size:13px}
-.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;
-border-radius:999px;margin:0 4px 5px 0;white-space:nowrap}
-.bad{background:var(--coral-soft);color:var(--coral-ink)}
-.warn{background:var(--amber-soft);color:var(--amber)}
-.ok{background:var(--blue-soft);color:var(--blue-2)}
-.off{background:var(--grey-soft);color:var(--grey)}
-.acc{background:var(--coral);color:#fff}
-.t3{background:var(--blue);color:#fff}
-tr.detail td{background:#fafbfd;padding:4px 16px 20px;border-top:0}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;
-padding:16px 18px}
-.detail h3{margin:16px 0 8px;font-size:12px;text-transform:uppercase;
-letter-spacing:.07em;color:var(--blue-2)}
-.detail h3:first-child{margin-top:0}
-.inner{min-width:0;width:100%;border-collapse:collapse}
-.inner th{position:static;background:none;padding:6px 10px;color:var(--muted);
-border-radius:0}
-.inner td{padding:8px 10px;font-size:13.5px}
-.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;
-color:var(--muted);align-items:center}
-footer{color:var(--muted);font-size:12.5px}
-.notes{color:var(--muted);font-size:12.5px}
-.notes summary{cursor:pointer}
-.notes ul{margin:6px 0 0;padding-left:18px}
-@media (max-width:640px){h1{font-size:26px}.stamp{align-items:flex-start}
-.band-in{padding-bottom:64px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+html{background:var(--white)}
+body{margin:0;background:var(--white);color:var(--ink);
+font:16px/1.55 var(--text);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+.page{max-width:1280px;margin:0 auto;padding:40px 28px 72px}
+
+/* ---------- top ---------- */
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;
+align-items:start}
+h1{font:800 clamp(40px,6vw,72px)/.95 var(--display);margin:0;
+letter-spacing:-.03em;color:var(--navy);font-variation-settings:"opsz" 96}
+h1 .dot{display:inline-block;width:.22em;height:.22em;border-radius:50%;
+background:var(--coral);margin-left:.06em;vertical-align:.08em}
+.when{text-align:right;color:var(--slate);font-size:14px;line-height:1.5}
+.when b{color:var(--navy);font-weight:700}
+.story{margin:22px 0 0;max-width:58ch;font-size:clamp(18px,2.1vw,22px);
+line-height:1.5;color:var(--ink)}
+.story .f{padding:0 .12em;cursor:pointer;-webkit-box-decoration-break:clone;
+box-decoration-break:clone;
+font-weight:700;color:var(--navy);
+background-image:linear-gradient(var(--mist),var(--mist));
+background-size:100% 42%;background-position:0 88%;background-repeat:no-repeat;
+transition:background-size .2s,color .2s;border-radius:2px}
+.story .f:hover{background-size:100% 100%}
+.story .f.gap{color:var(--coral-ink);
+background-image:linear-gradient(var(--coral-tint),var(--coral-tint))}
+.story .f[aria-pressed=true]{color:var(--white);background-size:100% 100%;
+background-image:linear-gradient(var(--navy),var(--navy))}
+.story .f.gap[aria-pressed=true]{
+background-image:linear-gradient(var(--coral-ink),var(--coral-ink))}
+.story .f:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.story .reset{font-weight:400;color:var(--slate);background-image:none;
+text-decoration:underline;text-underline-offset:3px;font-size:.8em}
+.stale{margin:24px 0 0;padding:14px 18px;border-radius:10px;
+background:var(--coral-tint);color:var(--coral-ink);font-weight:700}
+.week{margin:18px 0 0;font-size:15px;color:var(--slate)}
+.week summary{cursor:pointer;color:var(--navy);font-weight:700}
+.week ul{margin:8px 0 0;padding-left:20px;max-width:80ch}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:end;
+margin:44px 0 14px}
+.find{flex:1 1 280px;min-width:0;display:flex;align-items:center;gap:10px;
+border-bottom:2px solid var(--navy);padding:4px 2px 8px}
+.find svg{flex:none;color:var(--navy)}
+.find input{border:0;outline:0;background:none;width:100%;font-size:18px}
+.find input::placeholder{color:var(--slate)}
+.find:focus-within{border-color:var(--coral)}
+.seg{display:inline-flex;background:var(--mist);border-radius:999px;padding:4px}
+.seg button{border:0;background:none;border-radius:999px;padding:7px 14px;
+cursor:pointer;font-size:14px;color:var(--navy-2)}
+.seg button[aria-pressed=true]{background:var(--white);color:var(--navy);
+font-weight:700;box-shadow:0 1px 3px rgba(19,41,75,.18)}
+.seg-label{font-size:13px;color:var(--slate);margin:0 0 6px}
+.key{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px;
+color:var(--slate);margin:0 0 10px}
+.key span{display:inline-flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:26px;height:10px;border-radius:3px}
+
+/* ---------- the calendar ---------- */
+.cal{position:relative;border-top:2px solid var(--navy)}
+.axis,.lane{display:grid;grid-template-columns:var(--names) minmax(0,1fr)}
+.axis{position:sticky;top:0;z-index:3;background:var(--white);
+border-bottom:1px solid var(--line)}
+.axis .lbl{font-size:13px;color:var(--slate);padding:10px 0 8px}
+.ticks{position:relative;height:40px}
+.tick{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);
+padding:10px 0 0 6px;font-size:12.5px;color:var(--slate);white-space:nowrap}
+.tick.yr{border-left:2px solid var(--navy-2);color:var(--navy);
+font-weight:700}
+.lanes{position:relative}
+.lane{width:100%;text-align:left;border:0;background:none;padding:0;
+cursor:pointer;border-bottom:1px solid var(--line);display:grid}
+.lane:hover,.lane:focus-visible{background:#f8fafd;outline:0}
+.lane:focus-visible .who{box-shadow:inset 3px 0 0 var(--coral)}
+.lane.on{background:var(--mist)}
+.who{padding:14px 16px 14px 0;min-width:0}
+.name{font:700 18px/1.2 var(--display);color:var(--navy);
+display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.line2{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:3px}
+.form{font-weight:500;font-size:14px;color:var(--slate);
+font-family:var(--text)}
+.hk{font:700 11.5px/1 var(--text);color:var(--white);background:var(--coral);
+border-radius:999px;padding:4px 8px}
+.say{margin-top:4px;font-size:14px;line-height:1.35;color:var(--slate)}
+.say.gap{color:var(--coral-ink);font-weight:700}
+.say.cov{color:var(--navy-2)}
+.track{position:relative;min-height:74px}
+.grid{position:absolute;inset:0;pointer-events:none}
+.grid i{position:absolute;top:0;bottom:0;border-left:1px solid var(--line)}
+.grid i.yr{border-left:1px solid var(--fog)}
+.bar{position:absolute;height:16px;border-radius:5px;
+transform-origin:left center;animation:grow .7s cubic-bezier(.2,.8,.2,1) both}
+.bar.sh{top:18px;background:var(--coral)}
+.bar.ex{top:18px;background:repeating-linear-gradient(135deg,var(--coral) 0 6px,
+#ff8e8a 6px 12px)}
+.bar.dn{top:18px;background:var(--fog)}
+.bar.open{border-top-right-radius:0;border-bottom-right-radius:0;
+-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);
+mask-image:linear-gradient(90deg,#000 80%,transparent)}
+.bar.cut{border-top-left-radius:0;border-bottom-left-radius:0}
+.bar.im{height:9px;background:var(--navy);border-radius:999px}
+.bar.im.soon{background:linear-gradient(90deg,var(--navy) 70%,var(--coral))}
+.bar.im.old{background:var(--fog)}
+.today{position:absolute;top:0;bottom:0;width:0;
+border-left:2px solid var(--coral);z-index:2;pointer-events:none}
+.today b{position:absolute;bottom:-11px;left:-24px;width:48px;text-align:center;
+font:700 12px/1 var(--text);color:var(--white);background:var(--coral);
+border-radius:999px;padding:5px 0}
+.none{padding:48px 0;color:var(--slate);font-size:18px}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- drawer ---------- */
+.shade{position:fixed;inset:0;background:rgba(19,41,75,.28);opacity:0;
+pointer-events:none;transition:opacity .2s;z-index:9}
+.shade.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);
+background:var(--white);z-index:10;transform:translateX(102%);
+transition:transform .28s cubic-bezier(.2,.8,.2,1);overflow-y:auto;
+box-shadow:-12px 0 40px rgba(19,41,75,.18);
+padding:28px 28px calc(40px + env(safe-area-inset-bottom,0px))}
+.drawer.on{transform:none}
+.close{position:absolute;top:18px;right:18px;width:40px;height:40px;
+border-radius:50%;border:0;background:var(--mist);cursor:pointer;
+font-size:22px;line-height:1;color:var(--navy)}
+.drawer h2{font:800 34px/1 var(--display);color:var(--navy);margin:6px 48px 4px 0;
+letter-spacing:-.02em}
+.drawer .form{font-size:15px}
+.verdict{margin:18px 0 0;padding:14px 16px;border-radius:12px;
+background:var(--mist);color:var(--navy);font-weight:700}
+.verdict.gap{background:var(--coral-tint);color:var(--coral-ink)}
+.drawer h3{font:700 19px/1.2 var(--display);color:var(--navy);
+margin:28px 0 10px}
+.item{padding:12px 0;border-top:1px solid var(--line)}
+.item:last-child{border-bottom:1px solid var(--line)}
+.item .row1{display:flex;justify-content:space-between;gap:12px;
+align-items:baseline}
+.item b{color:var(--navy)}
+.item .meta{font-size:14px;color:var(--slate);margin-top:2px}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;
+padding:3px 9px;white-space:nowrap}
+.tag.sh{background:var(--coral);color:var(--white)}
+.tag.ex{background:var(--coral-tint);color:var(--coral-ink)}
+.tag.ok{background:var(--navy);color:var(--white)}
+.tag.dn{background:var(--mist);color:var(--slate)}
+.hikma{margin:0;font-size:15.5px}
+.muted{color:var(--slate)}
+
+/* ---------- foot ---------- */
+footer{margin-top:40px;color:var(--slate);font-size:13.5px;max-width:80ch}
+footer details{margin-top:8px}
+footer summary{cursor:pointer}
+
+@media (max-width:760px){
+:root{--names:150px}
+.page{padding:28px 16px 56px}
+.top{grid-template-columns:1fr}
+.when{text-align:left}
+.name{font-size:16px}
+.say{display:none}
+.cal{overflow-x:auto}
+.axis,.lane{min-width:720px}
+.drawer{top:auto;height:86vh;width:100%;border-radius:18px 18px 0 0;
+transform:translateY(102%)}
+}
+@media (prefers-reduced-motion:reduce){
+.bar{animation:none}.drawer,.shade,.story button{transition:none}}
 </style></head><body>
-<div class="band"><div class="band-in"><div>
-<p class="eyebrow">Hikma Canada &middot; Commercial</p>
-<h1>Tier 3 Tracker</h1>
-<p class="sub">Every molecule on Health Canada's Tier 3 shortage list, with
-its shortage reports, Hikma's matching product and who is cleared to import
-it. Updated every Monday. Click any molecule for the details.</p></div>
-<div class="stamp" id="stamp"></div></div></div>
-<div class="wrap">
-<div id="banners"></div>
-<div class="stats" id="stats"></div>
-<div class="card changes" id="changes"></div>
-<div class="bar"><div class="search"><svg width="16" height="16"
-viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/>
-<path d="m20 20-3.5-3.5"/></svg><input id="q" type="search"
-aria-label="Search" placeholder="Search a molecule, company or importer">
+<main class="page">
+<div class="top">
+<h1>Tier 3 Tracker<span class="dot" aria-hidden="true"></span></h1>
+<div class="when" id="when"></div>
 </div>
-<select id="stage" aria-label="Stage"><option value="">All stages</option>
-<option>Watching</option><option>Reviewing</option><option>Pursuing</option>
-<option>Parked</option></select><span class="count" id="count"></span></div>
-<div class="legend"><span><span class="pill bad">Actual shortage</span>
-<span class="pill warn">Anticipated</span><span class="pill t3">Tier 3</span>
-</span><span><span class="pill ok">Importer active</span>
-<span class="pill warn">Ending within 30 days</span>
-<span class="pill off">Expired</span></span></div>
-<div class="card box"><table><thead><tr><th>Molecule</th><th>Hikma</th>
-<th>Shortage</th><th>Importation list</th><th>Stage</th><th>Notes</th>
-</tr></thead><tbody id="rows"></tbody></table></div>
-<div id="notes" class="notes"></div>
-<footer id="foot"></footer></div>
+<p class="story" id="story"></p>
+<div id="stale"></div>
+<details class="week" id="week" hidden></details>
+
+<div class="controls">
+<label class="find"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>
+</svg><input id="q" type="search" autocomplete="off"
+placeholder="Find a molecule, company or importer" aria-label="Find"></label>
+<div><p class="seg-label">Show</p><div class="seg" id="range" role="group"
+aria-label="Time range"><button data-m="6">6 months ahead</button><button
+data-m="12">1 year ahead</button><button data-m="24">2 years ahead</button>
+</div></div>
+<div><p class="seg-label">Order</p><div class="seg" id="sort" role="group"
+aria-label="Order"><button data-s="need">Most urgent</button><button
+data-s="az">A to Z</button></div></div>
+</div>
+
+<div class="key" aria-hidden="true">
+<span><i class="sw" style="background:var(--coral)"></i>Shortage</span>
+<span><i class="sw" style="background:repeating-linear-gradient(135deg,var(--coral) 0 6px,#ff8e8a 6px 12px)"></i>Expected shortage</span>
+<span><i class="sw" style="background:var(--navy);height:7px;border-radius:9px"></i>Import permit</span>
+<span><i class="sw" style="background:linear-gradient(90deg,var(--navy) 60%,var(--coral));height:7px;border-radius:9px"></i>Permit ending within 30 days</span>
+<span><i class="sw" style="background:var(--coral);width:3px;height:16px"></i>Today</span>
+</div>
+
+<section class="cal" aria-label="Supply calendar">
+<div class="axis"><div class="lbl" id="count"></div><div class="ticks" id="ticks"></div></div>
+<div class="lanes" id="lanes"></div>
+</section>
+
+<footer id="foot"></footer>
+</main>
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Molecule details">
+<button class="close" id="close" aria-label="Close">&times;</button>
+<div id="dbody"></div>
+</aside>
+
 <script>
-var DATA = {"run_date": "2026-10-20", "issued": "2026-10-15", "rows": [{"i": 0, "name": "Acetylcholine chloride", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAUSCH & LOMB INC", "start": "2025-12-04", "end": "2027-02-05", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Acetylcholine chloride (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAUSCH & LOMB INC", "Brand name": "MIOCHOL-E", "Strength": "20MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02133326", "Start date": "2025-12-04", "End date": "2027-02-05", "Updated": "2026-10-13", "Report ID": "272933"}], "imports": []}, {"i": 1, "name": "Albumin", "forms": "Suspension", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Albumin (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MAA KIT", "Strength": "2.1MG", "Dosage form": "Suspension Kit", "Form match": "Other form", "DIN": "02360845", "Start date": "2026-07-23", "End date": "2026-11-30", "Updated": "2026-09-03", "Report ID": "290505"}, {"Molecule": "Albumin (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MAA", "Strength": "2.5MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329417", "Start date": "2026-07-30", "End date": "2027-01-31", "Updated": "2026-10-05", "Report ID": "291124"}], "imports": []}, {"i": 2, "name": "Aminophylline", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-05-04", "end": "2026-10-19", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Aminophylline (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "AMINOPHYLLINE INJ 25MG/ML", "Strength": "25MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00582662", "Start date": "2026-05-04", "End date": "2026-10-19", "Updated": "2026-10-07", "Report ID": "284545"}], "imports": [{"product": "Aminophylline Injection, Aminophylline", "importer": "Juno Pharma Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Product Regulatory Agency (MHRA), PL 01502/0009R", "added": "2026-06-23", "cutoff": "2026-08-30", "cutoff_raw": "August 30, 2026", "state": "Expired", "unsure": false}, {"product": "Aminophylline Injection, aminophylline hydrate", "importer": "Septa Pharmaceuticals Inc.", "origin": "UK, MHRA PL 12762/0559", "added": "2024-04-26", "cutoff": "2024-07-31", "cutoff_raw": "July 31, 2024", "state": "Expired", "unsure": false}, {"product": "Aminophylline Injection, aminophylline dihydrate", "importer": "Juno Pharmaceuticals Corp.", "origin": "Greece, National Organization for Medicines, 40869/09/03-03-2010 GR", "added": "2024-04-18", "cutoff": "2024-07-31", "cutoff_raw": "July 31, 2024", "state": "Expired", "unsure": false}]}, {"i": 3, "name": "Apomorphine", "forms": "Film (soluble)", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": []}, {"i": 4, "name": "Apomorphine", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "APO-go Pen, Apomorphine Hydrochloride", "importer": "Aguettant Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 04483/0073", "added": "2025-12-15", "cutoff": "2026-10-22", "cutoff_raw": "October 22, 2026", "state": "Expiring", "unsure": false}, {"product": "APO-go Pen, Apomorphine Hydrochloride", "importer": "Accuristix", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 04483/0073", "added": "2023-12-11", "cutoff": "2024-12-31", "cutoff_raw": "December 31, 2024", "state": "Expired", "unsure": false}]}, {"i": 5, "name": "Aprepitant", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "To be discontinued", "tier3": "Yes", "companies": "MERCK CANADA INC", "start": "2026-12-18", "end": "", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND", "Strength": "80MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02298791", "Start date": "2026-12-18", "End date": "", "Updated": "2026-07-16", "Report ID": "275220"}, {"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND", "Strength": "125MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02298805", "Start date": "2027-04-30", "End date": "", "Updated": "2026-07-16", "Report ID": "275223"}, {"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND TRI-PACK", "Strength": "80MG 125MG", "Dosage form": "Capsule Kit", "Form match": "Other form", "DIN": "02298813", "Start date": "2027-02-26", "End date": "", "Updated": "2026-07-16", "Report ID": "275233"}], "imports": []}, {"i": 6, "name": "Bupivacaine", "forms": "Solution", "hikma_us": "Bupivacaine HCl Injection, 8 SKUs (25 mg/10 mL to 250 mg/50 mL)", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "Yes", "companies": "FORMATIVE PHARMA INC., OMEGA LABORATORIES LIMITED, STERIMAX INC", "start": "2026-06-22", "end": "2027-03-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Bupivacaine (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02512424", "Start date": "2026-06-22", "End date": "2027-03-31", "Updated": "2026-09-11", "Report ID": "288791"}, {"Molecule": "Bupivacaine (solution)", "Status": "To be discontinued", "Tier 3": "No", "Company": "STERIMAX INC", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02460645", "Start date": "2026-06-30", "End date": "", "Updated": "2025-12-11", "Report ID": "274162"}, {"Molecule": "Bupivacaine (solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "FORMATIVE PHARMA INC.", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02536714", "Start date": "2026-12-01", "End date": "", "Updated": "2026-09-21", "Report ID": "289841"}, {"Molecule": "Bupivacaine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "PFIZER CANADA ULC", "Brand name": "MARCAINE", "Strength": "150MG", "Dosage form": "Solution Solution", "Form match": "Other form", "DIN": "02241917", "Start date": "2025-03-30", "End date": "", "Updated": "2026-08-04", "Report ID": "290610"}], "imports": [{"product": "Bupisen iperbarica 7,5 mg/ml soluzione iniettabile, Bupivacaine Hydrochloride", "importer": "Formative Pharma Inc.", "origin": "Italy, Italian Medicines Agency, MA No. 034171215", "added": "2026-09-18", "cutoff": "2027-03-31", "cutoff_raw": "March 31, 2027", "state": "Active", "unsure": false}, {"product": "Marcain – Adrenalin, Bupivacaine hydrochloride and Epinephrine", "importer": "Aspen Pharmacare Canada", "origin": "Denmark, Danish Medicines Agency, 10213", "added": "2024-07-29", "cutoff": "2024-09-30", "cutoff_raw": "September 30, 2024", "state": "Expired", "unsure": false}, {"product": "Bupivacaine with Adrenaline (Epinephrine) Injection (0.25%), Bupivacaine hydrochloride and Adrenaline (Epinephrine)", "importer": "SteriMax Inc.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 12762/0556", "added": "2024-05-28", "cutoff": "2024-12-05", "cutoff_raw": "December 5, 2024", "state": "Expired", "unsure": false}, {"product": "Bupivacaine with Adrenaline (Epinephrine) Injection (0.5%), Bupivacaine hydrochloride and Adrenaline (Epinephrine)", "importer": "SteriMax Inc.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 12762/0557", "added": "2024-05-28", "cutoff": "2024-09-01", "cutoff_raw": "September 1, 2024", "state": "Expired", "unsure": false}]}, {"i": 7, "name": "Calcitonin", "forms": "Solution", "hikma_us": "Calcitonin Salmon Injection 400 units/2 mL (NDC 24201-400-02)", "hikma_ca": "No", "status": "Discontinued", "tier3": "Yes", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Calcitonin (solution)", "Status": "Discontinued", "Tier 3": "Yes", "Company": "SANOFI-AVENTIS CANADA INC", "Brand name": "CALCIMAR", "Strength": "200UNIT", "Dosage form": "Solution", "Form match": "Yes", "DIN": "01926691", "Start date": "2026-08-28", "End date": "", "Updated": "2026-09-10", "Report ID": "279452"}], "imports": [{"product": "Calcitonin Salmon Injection, USP, Synthetic,Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, United States, Food and Drug Administration, National Drug Code (NDC) 24201-400-02", "added": "2026-08-01", "cutoff": "2027-07-31", "cutoff_raw": "July 31, 2027", "state": "Active", "unsure": false}, {"product": "Calcitonin Salmon Injection, USP, Synthetic,Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, United States, Food and Drug Administration, National Drug Code (NDC) 24201-400-02", "added": "2025-04-03", "cutoff": "2026-01-31", "cutoff_raw": "January 31, 2026", "state": "Expired", "unsure": false}, {"product": "Calcitonin Salmon Injection, USP, Synthetic Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, US FDA, NDC 24201-400-02", "added": "2023-04-24", "cutoff": "2024-09-30", "cutoff_raw": "September 30, 2024", "state": "Expired", "unsure": false}]}, {"i": 8, "name": "Calcitriol", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Bonky Injection 1 μg, Calcitriol", "importer": "Septa Pharmaceuticals Inc", "origin": "South Korea, Ministry of Food and Drug Safety, 78", "added": "2026-08-07", "cutoff": "2027-06-14", "cutoff_raw": "June 14, 2027", "state": "Active", "unsure": false}, {"product": "Calcitriol Injection USP, Calcitriol", "importer": "Sterimax Inc.", "origin": "United States, Food and Drug Administration, NDC 72266-251-10", "added": "2024-06-14", "cutoff": "2026-07-31", "cutoff_raw": "July 31, 2026", "state": "Expired", "unsure": false}]}, {"i": 9, "name": "Carbachol", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "ALCON CANADA INC", "start": "2026-09-28", "end": "2027-01-04", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Carbachol (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "ALCON CANADA INC", "Brand name": "MIOSTAT OPHTHALMIC LIQ 0.01%", "Strength": ".01%", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00042544", "Start date": "2026-09-28", "End date": "2027-01-04", "Updated": "2026-10-13", "Report ID": "293982"}], "imports": [{"product": "Miostat, Carbachol", "importer": "Alcon Canada Inc", "origin": "United States, US FDA, NDC 0065-0023-15", "added": "2023-02-16", "cutoff": "2023-04-01", "cutoff_raw": "April 1, 2023", "state": "Expired", "unsure": false}]}, {"i": 10, "name": "Cefazolin", "forms": "Solution", "hikma_us": "Cefazolin for Injection, powder 500 mg to 10 g", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-06-02", "end": "", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Cefazolin (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "CEFAZOLIN INJECTION, USP", "Strength": "20MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02496313", "Start date": "2025-06-02", "End date": "", "Updated": "2025-11-19", "Report ID": "254446"}, {"Molecule": "Cefazolin (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "CEFAZOLIN INJECTION, USP", "Strength": "20MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02496313", "Start date": "2025-06-14", "End date": "", "Updated": "2025-11-19", "Report ID": "254442"}, {"Molecule": "Cefazolin (solution)", "Status": "Resolved", "Tier 3": "No", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "CEFAZOLIN FOR INJECTION USP", "Strength": "1G", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02308959", "Start date": "2026-08-10", "End date": "2026-10-05", "Updated": "2026-10-06", "Report ID": "290996"}], "imports": [{"product": "Cefazolin in Dextrose, Cefazolin", "importer": "Baxter Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0338-3503-41 (1g in 50mL); 0338-3508-41 (2g in 100mL)", "added": "2025-06-17", "cutoff": "2026-08-31", "cutoff_raw": "August 31, 2026", "state": "Expired", "unsure": false}]}, {"i": 11, "name": "Cyclophosphamide", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION, STERIMAX INC", "start": "2026-01-10", "end": "", "open": 6, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "2000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241800", "Start date": "2026-01-10", "End date": "", "Updated": "2026-02-23", "Report ID": "274375"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "1000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241799", "Start date": "2026-02-10", "End date": "", "Updated": "2026-09-23", "Report ID": "277755"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "500MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241798", "Start date": "2026-02-13", "End date": "", "Updated": "2026-02-23", "Report ID": "278081"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "CYCLOPHOSPHAMIDE FOR INJECTION USP", "Strength": "2000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02547694", "Start date": "2026-02-20", "End date": "", "Updated": "2026-02-23", "Report ID": "278135"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "CYCLOPHOSPHAMIDE FOR INJECTION USP", "Strength": "1000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02547686", "Start date": "2026-02-20", "End date": "", "Updated": "2026-02-23", "Report ID": "278132"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "200MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241797", "Start date": "2026-12-31", "End date": "", "Updated": "2026-02-23", "Report ID": "265253"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "To be discontinued", "Tier 3": "No", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX TAB 25MG", "Strength": "25MG", "Dosage form": "Tablet", "Form match": "Other form", "DIN": "02241795", "Start date": "2026-03-05", "End date": "", "Updated": "2026-03-05", "Report ID": "265250"}], "imports": [{"product": "Cyclophosphamide for Injection, USP, cyclophosphamide", "importer": "Sandoz Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0781-3244-94", "added": "2026-04-10", "cutoff": "2026-05-31", "cutoff_raw": "May 31, 2026", "state": "Expired", "unsure": false}, {"product": "Cyclophosphamide for Injection, USP, cyclophosphamide", "importer": "Sandoz Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0781-3255-94", "added": "2026-04-10", "cutoff": "2026-05-31", "cutoff_raw": "May 31, 2026", "state": "Expired", "unsure": false}, {"product": "Cyclophosphamide Seacross 2000 mg, cyclophosphamide", "importer": "Andone Pharmaceutical Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 41013/0081", "added": "2026-03-03", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}]}, {"i": 12, "name": "Dacarbazine", "forms": "Powder for solution", "hikma_us": "Dacarbazine for Injection 200 mg/vial (NDC 0143-9245-10)", "hikma_ca": "No", "status": "Anticipated shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2027-01-06", "end": "2028-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dacarbazine (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DACARBAZINE FOR INJECTION BP", "Strength": "600MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241445", "Start date": "2027-01-06", "End date": "2028-12-31", "Updated": "2026-10-01", "Report ID": "290934"}], "imports": []}, {"i": 13, "name": "Dexamethasone", "forms": "Liquid", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2025-11-26", "end": "2026-12-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2025-11-26", "End date": "2026-12-31", "Updated": "2026-09-02", "Report ID": "272781"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2026-02-20", "End date": "2026-12-31", "Updated": "2026-09-09", "Report ID": "278479"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2026-08-12", "End date": "", "Updated": "2026-08-12", "Report ID": "291213"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "No", "Company": "TARO PHARMACEUTICALS INC", "Brand name": "TARO-CIPROFLOXACIN/DEXAMETHASONE", "Strength": "0.3% 0.1%", "Dosage form": "Suspension", "Form match": "Other form", "DIN": "02481901", "Start date": "2026-03-04", "End date": "2026-10-30", "Updated": "2026-09-29", "Report ID": "285469"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJECTION, USP", "Strength": "4MG", "Dosage form": "Solution Liquid", "Form match": "Other form", "DIN": "01977547", "Start date": "2026-04-10", "End date": "2026-10-01", "Updated": "2026-10-01", "Report ID": "282805"}, {"Molecule": "Dexamethasone (liquid)", "Status": "To be discontinued", "Tier 3": "No", "Company": "NOVARTIS PHARMACEUTICALS CANADA INC", "Brand name": "CIPRODEX", "Strength": "0.1% 0.3%", "Dosage form": "Suspension", "Form match": "Other form", "DIN": "02252716", "Start date": "2027-09-30", "End date": "", "Updated": "2026-09-29", "Report ID": "294772"}], "imports": []}, {"i": 14, "name": "Dexamethasone", "forms": "Solution", "hikma_us": "Dexamethasone Sodium Phosphate Injection 4 mg/mL, 10 mg/mL, 20 mg/5 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-07-21", "end": "2027-05-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dexamethasone (solution)", "Status": "Resolved", "Tier 3": "Yes", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJ USP 4MG/ML", "Strength": "4MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00664227", "Start date": "2026-06-22", "End date": "2026-09-08", "Updated": "2026-10-05", "Report ID": "287779"}, {"Molecule": "Dexamethasone (solution)", "Status": "Resolved", "Tier 3": "No", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJ USP 4MG/ML", "Strength": "4MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00664227", "Start date": "2026-06-22", "End date": "2026-09-08", "Updated": "2026-10-06", "Report ID": "286117"}, {"Molecule": "Dexamethasone (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE OMEGA UNIDOSE", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02387743", "Start date": "2026-07-21", "End date": "2027-05-31", "Updated": "2026-09-09", "Report ID": "289689"}], "imports": [{"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Juno Pharma Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 25021-052-05", "added": "2026-08-07", "cutoff": "2026-09-06", "cutoff_raw": "Sept 6, 2026", "state": "Expired", "unsure": false}, {"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Fresenius Kabi Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 63323-165-02 (vial), 63323-165-01 (tray)", "added": "2026-07-07", "cutoff": "2026-11-30", "cutoff_raw": "November 30, 2026", "state": "Active", "unsure": false}, {"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Fresenius Kabi Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 63323-165-03 (vial), 63323-165-05 (tray)", "added": "2026-07-07", "cutoff": "2026-09-06", "cutoff_raw": "September 6, 2026", "state": "Expired", "unsure": false}]}, {"i": 15, "name": "Dextrose", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED, PFIZER CANADA ULC", "start": "2026-06-29", "end": "2027-02-15", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dextrose (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXTROSE INJECTION", "Strength": "50%", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02517132", "Start date": "2026-06-29", "End date": "2026-11-30", "Updated": "2026-08-12", "Report ID": "288363"}, {"Molecule": "Dextrose (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DEXTROSE INJECTION USP", "Strength": "500MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02468514", "Start date": "2026-09-09", "End date": "2026-11-30", "Updated": "2026-10-08", "Report ID": "287226"}, {"Molecule": "Dextrose (solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DEXTROSE INJECTION USP", "Strength": "500MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02468514", "Start date": "2026-09-09", "End date": "2027-02-15", "Updated": "2026-09-09", "Report ID": "285007"}], "imports": [{"product": "Glucose Intravenous Infusion 50% w/v, Glucose", "importer": "Juno Pharma Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 01502/0005R", "added": "2026-07-22", "cutoff": "2027-02-28", "cutoff_raw": "February 28, 2027", "state": "Active", "unsure": false}, {"product": "Glucose Intravenous Infusion 50% w/v, glucose", "importer": "Juno Pharmaceuticals Corp.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 01502/0005R", "added": "2023-11-07", "cutoff": "2025-01-15", "cutoff_raw": "January 15, 2025", "state": "Expired", "unsure": false}]}, {"i": 16, "name": "Disofenin", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Disofenin (kit)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS DISIDA KIT", "Strength": "20MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02486008", "Start date": "2026-09-15", "End date": "", "Updated": "2026-08-11", "Report ID": "291191"}], "imports": []}, {"i": 17, "name": "Disopyramide", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2025-01-24", "end": "", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Disopyramide (capsule)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "RYTHMODAN", "Strength": "100MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02224801", "Start date": "2025-01-24", "End date": "", "Updated": "2025-05-29", "Report ID": "248525"}], "imports": [{"product": "Disopyramide Phosphate Capsules, USP, Disopyramide Phosphate", "importer": "Dr. Reddy's Laboratories Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 75907-027-01", "added": "2025-06-20", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 18, "name": "Epinephrine", "forms": "Solution", "hikma_us": "", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "No", "companies": "PFIZER CANADA ULC", "start": "2026-05-22", "end": "2026-12-21", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Epinephrine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "PFIZER CANADA ULC", "Brand name": "EPINEPHRINE INJECTION USP", "Strength": "1MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00721891", "Start date": "2026-05-22", "End date": "2026-12-21", "Updated": "2026-09-18", "Report ID": "282428"}], "imports": [{"product": "Epinephrine Injection USP, Epinephrine", "importer": "Amphastar Pharmaceuticals, Inc.", "origin": "United States of America, Food and Drug Administration, NDC #76329-3318-1", "added": "2024-08-08", "cutoff": "2025-06-30", "cutoff_raw": "June 30, 2025", "state": "Expired", "unsure": false}]}, {"i": 19, "name": "Etoposide", "forms": "Capsule", "hikma_us": "Etoposide Injection 100 mg, 500 mg, 1 g", "hikma_ca": "Yes", "status": "Anticipated shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2026-09-04", "end": "", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Etoposide (capsule)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "VEPESID", "Strength": "50MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "00616192", "Start date": "2026-09-04", "End date": "", "Updated": "2026-08-25", "Report ID": "289101"}, {"Molecule": "Etoposide (capsule)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "TEVA CANADA LIMITED", "Brand name": "ETOPOSIDE INJECTION", "Strength": "20MG", "Dosage form": "Solution Liquid", "Form match": "Other form", "DIN": "02080036", "Start date": "2026-12-31", "End date": "2027-02-28", "Updated": "2026-09-25", "Report ID": "294516"}], "imports": [{"product": "VePesid, Etoposide, USP", "importer": "SteriMax Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 69238-2811-2", "added": "2026-10-14", "cutoff": "2026-11-01", "cutoff_raw": "November 1, 2026", "state": "Expiring", "unsure": false}, {"product": "Etoposide Capsules, USP, Etoposide", "importer": "SteriMax Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 83270-451-05", "added": "2026-09-03", "cutoff": "2027-03-01", "cutoff_raw": "March 1, 2027", "state": "Active", "unsure": false}]}, {"i": 20, "name": "Famotidine", "forms": "Solution", "hikma_us": "Famotidine Injection 20 mg/2 mL, 40 mg/4 mL, 200 mg/20 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-03-02", "end": "2026-11-30", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Famotidine (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "FAMOTIDINE OMEGA -(WITHOUT PRESERVATIVE)", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02247735", "Start date": "2026-03-02", "End date": "2026-11-30", "Updated": "2026-07-29", "Report ID": "279595"}, {"Molecule": "Famotidine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "FAMOTIDINE OMEGA -(WITH PRESERVATIVE,BENZYL ALCOHOL)", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02247745", "Start date": "2026-07-06", "End date": "2026-11-30", "Updated": "2026-09-09", "Report ID": "288796"}, {"Molecule": "Famotidine (solution)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "SANIS HEALTH INC", "Brand name": "FAMOTIDINE", "Strength": "20MG", "Dosage form": "Tablet", "Form match": "Other form", "DIN": "02351102", "Start date": "2026-05-25", "End date": "", "Updated": "2026-05-25", "Report ID": "285868"}], "imports": [{"product": "Famotidine Injection USP, Famotidine", "importer": "Juno Pharma Canada Inc", "origin": "United States, South United States, Food and Drug Administration, NDC 25021-753-02", "added": "2026-05-14", "cutoff": "2026-11-30", "cutoff_raw": "November 31, 2026", "state": "Active", "unsure": false}]}, {"i": 21, "name": "Glucagon", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Glucagon Injection, glucagon", "importer": "Amphastar Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0548-5850-00", "added": "2023-05-19", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 22, "name": "Ifosfamide", "forms": "Powder for solution", "hikma_us": "Ifosfamide Injection 1 g/20 mL, 3 g/60 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-12-19", "end": "2026-10-06", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Ifosfamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "IFEX", "Strength": "3G", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241356", "Start date": "2025-12-19", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "273129"}, {"Molecule": "Ifosfamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "IFEX", "Strength": "1G", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241357", "Start date": "2025-12-19", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "273126"}], "imports": [{"product": "Ifosfamide for Injection, Ifosfamide", "importer": "SteriMax Inc.", "origin": "China, National Medical Products Administration, National Drug Approval Number: H20093079", "added": "2026-05-22", "cutoff": "2026-09-30", "cutoff_raw": "September 30, 2026", "state": "Expired", "unsure": false}, {"product": "IFEX, ifosfamide", "importer": "Baxter Corporation", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0338-3993-01", "added": "2026-01-16", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}, {"product": "Ifosfamide for Injection, ifosfamide", "importer": "Baxter Corporation", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 10019-926-02 (carton), 10019-926-16 (container)", "added": "2026-01-16", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}]}, {"i": 23, "name": "Lomustine", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Lomustine Medac, lomustine", "importer": "Septa Pharmaceuticals Inc.", "origin": "UnitedKingdom, Medicines and Healthcare Products Regulatory Agency (MHRA), PL 11587/0003", "added": "2025-09-19", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}, {"product": "Gleostine, lomustine", "importer": "Septa Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 58181-3040-5 (10 mg), 58181-3041-5 (40 mg)", "added": "2024-10-17", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 24, "name": "MAA (macroaggregated albumin)", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "start": "2026-07-30", "end": "2027-01-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "MAA (macroaggregated albumin) (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MAA", "Strength": "2.5MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02329417", "Start date": "2026-07-30", "End date": "2027-01-31", "Updated": "2026-10-05", "Report ID": "291124"}, {"Molecule": "MAA (macroaggregated albumin) (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MAA KIT", "Strength": "2.1MG", "Dosage form": "Suspension Kit", "Form match": "Other form", "DIN": "02360845", "Start date": "2026-07-23", "End date": "2026-11-30", "Updated": "2026-09-03", "Report ID": "290505"}], "imports": [{"product": "Macrosalb Medi-Radiopharma 2.5 mg kit for radiopharmaceutical preparation, Macroaggregated human albumin", "importer": "Quality & Compliance Services Inc. on behalf of NUCM Radiopharma Inc.", "origin": "Hungary, European Medicines Agency, OGYI-T-24216/01", "added": "2026-10-02", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 25, "name": "Medronic acid", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "No", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MDP-25", "Strength": "25MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329239", "Start date": "2026-05-27", "End date": "2027-02-15", "Updated": "2026-09-17", "Report ID": "291138"}, {"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "No", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MDP", "Strength": "10MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329409", "Start date": "2026-06-03", "End date": "2027-01-31", "Updated": "2026-10-20", "Report ID": "291127"}, {"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MDP KIT", "Strength": "15MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02485834", "Start date": "2026-07-23", "End date": "2026-10-31", "Updated": "2026-09-01", "Report ID": "290493"}], "imports": [{"product": "Skeleton 5 mg powder for injection for solution, Medronic Acid", "importer": "Quality & Compliance Services Inc. on behalf of NUCM Radiopharma Inc.", "origin": "Hungary, European Medicines Agency, OGYI-T-8815/01", "added": "2026-10-02", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 26, "name": "Mesna", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-12-15", "end": "2026-10-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02371839", "Start date": "2025-12-15", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "274386"}, {"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02241411", "Start date": "2026-06-15", "End date": "2026-10-31", "Updated": "2026-10-06", "Report ID": "287221"}, {"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02241411", "Start date": "2026-06-15", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "286954"}], "imports": []}, {"i": 27, "name": "Peginterferon alfa-2a", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PHARMAAND GMBH", "start": "2024-10-29", "end": "2026-09-15", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Peginterferon alfa-2a (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PHARMAAND GMBH", "Brand name": "PEGASYS", "Strength": "180MCG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02248077", "Start date": "2024-10-29", "End date": "2026-09-15", "Updated": "2026-09-15", "Report ID": "241511"}], "imports": [{"product": "Pegasys (Peginterferon Alfa-2A)", "importer": "Accelera Pharma Canada Inc.", "origin": "Ireland, European Medicines Agency, SKU: 09120099674072", "added": "2025-06-24", "cutoff": "2026-06-30", "cutoff_raw": "June 30, 2026", "state": "Expired", "unsure": false}]}, {"i": 28, "name": "Penicillin G benzathine", "forms": "Suspension", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2025-12-02", "end": "2027-02-26", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Penicillin G benzathine (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "BICILLIN L-A", "Strength": "1200000UNIT", "Dosage form": "Suspension", "Form match": "Yes", "DIN": "02291924", "Start date": "2025-12-02", "End date": "2027-02-26", "Updated": "2026-05-26", "Report ID": "273071"}], "imports": [{"product": "Lentocilin S 1200, Benzathine benzylpenicillin", "importer": "Septa Pharmaceuticals Inc.", "origin": "Portugal, Autoridade Nacional do Medicamento e Produtos de Saúde (INFARMED), 9908301", "added": "2026-02-04", "cutoff": "2027-02-26", "cutoff_raw": "February 26, 2027", "state": "Active", "unsure": false}]}, {"i": 29, "name": "Raltitrexed", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2026-08-07", "end": "2028-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Raltitrexed (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "TOMUDEX", "Strength": "2MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02229566", "Start date": "2026-08-07", "End date": "2028-12-31", "Updated": "2026-10-01", "Report ID": "290925"}], "imports": [{"product": "Riventra, raltitrexed", "importer": "SteriMax Inc.", "origin": "China, National Medical Products Administration, National Drug Approval Number: GYZZH20213097", "added": "2026-10-09", "cutoff": "2027-04-30", "cutoff_raw": "April 30, 2027", "state": "Active", "unsure": false}]}, {"i": 30, "name": "Tetrasodium pyrophosphate", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Tetrasodium pyrophosphate (kit)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS PYP KIT", "Strength": "20MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02486016", "Start date": "2026-07-23", "End date": "2026-10-31", "Updated": "2026-10-02", "Report ID": "290498"}], "imports": [{"product": "Pyroscint, Sodium pyrophosphate decahydrate", "importer": "Isologic Innovative Radiopharmaceuticals Ontario Ltd.", "origin": "Hungary, European Medicines Agency, OGYI-T-8817/01", "added": "2026-09-14", "cutoff": "2026-12-15", "cutoff_raw": "December 15, 2026", "state": "Active", "unsure": false}]}, {"i": 31, "name": "Verteporfin", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2025-05-15", "end": "2026-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Verteporfin (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "VISUDYNE", "Strength": "15MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02242367", "Start date": "2025-05-15", "End date": "2026-12-31", "Updated": "2026-10-01", "Report ID": "265976"}], "imports": [{"product": "Visudyne, Verteporfin for injection", "importer": "Xediton Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0187-5600-15", "added": "2026-09-25", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}], "warnings": [], "changes": [], "first_run": false, "scanned": 9400, "import_rows": 165, "stale_days": 8, "show_notes": false};
+var DATA = {"run_date": "2026-10-21", "issued": "2026-10-15", "rows": [{"i": 0, "name": "Acetylcholine chloride", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAUSCH & LOMB INC", "start": "2025-12-04", "end": "2027-02-05", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Acetylcholine chloride (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAUSCH & LOMB INC", "Brand name": "MIOCHOL-E", "Strength": "20MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02133326", "Start date": "2025-12-04", "End date": "2027-02-05", "Updated": "2026-10-13", "Report ID": "272933"}], "imports": []}, {"i": 1, "name": "Albumin", "forms": "Suspension", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Albumin (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MAA KIT", "Strength": "2.1MG", "Dosage form": "Suspension Kit", "Form match": "Other form", "DIN": "02360845", "Start date": "2026-07-23", "End date": "2026-11-30", "Updated": "2026-09-03", "Report ID": "290505"}, {"Molecule": "Albumin (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MAA", "Strength": "2.5MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329417", "Start date": "2026-07-30", "End date": "2027-01-31", "Updated": "2026-10-05", "Report ID": "291124"}], "imports": []}, {"i": 2, "name": "Aminophylline", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-05-04", "end": "2026-10-29", "open": 1, "stage": "", "notes": "", "changed": "Aminophylline (solution): report 284545 changed, end 2026-10-19 to 2026-10-29", "reports": [{"Molecule": "Aminophylline (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "AMINOPHYLLINE INJ 25MG/ML", "Strength": "25MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00582662", "Start date": "2026-05-04", "End date": "2026-10-29", "Updated": "2026-10-21", "Report ID": "284545"}], "imports": [{"product": "Aminophylline Injection, Aminophylline", "importer": "Juno Pharma Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Product Regulatory Agency (MHRA), PL 01502/0009R", "added": "2026-06-23", "cutoff": "2026-08-30", "cutoff_raw": "August 30, 2026", "state": "Expired", "unsure": false}, {"product": "Aminophylline Injection, aminophylline hydrate", "importer": "Septa Pharmaceuticals Inc.", "origin": "UK, MHRA PL 12762/0559", "added": "2024-04-26", "cutoff": "2024-07-31", "cutoff_raw": "July 31, 2024", "state": "Expired", "unsure": false}, {"product": "Aminophylline Injection, aminophylline dihydrate", "importer": "Juno Pharmaceuticals Corp.", "origin": "Greece, National Organization for Medicines, 40869/09/03-03-2010 GR", "added": "2024-04-18", "cutoff": "2024-07-31", "cutoff_raw": "July 31, 2024", "state": "Expired", "unsure": false}]}, {"i": 3, "name": "Apomorphine", "forms": "Film (soluble)", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": []}, {"i": 4, "name": "Apomorphine", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "APO-go Pen, Apomorphine Hydrochloride", "importer": "Aguettant Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 04483/0073", "added": "2025-12-15", "cutoff": "2026-10-22", "cutoff_raw": "October 22, 2026", "state": "Expiring", "unsure": false}, {"product": "APO-go Pen, Apomorphine Hydrochloride", "importer": "Accuristix", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 04483/0073", "added": "2023-12-11", "cutoff": "2024-12-31", "cutoff_raw": "December 31, 2024", "state": "Expired", "unsure": false}]}, {"i": 5, "name": "Aprepitant", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "To be discontinued", "tier3": "Yes", "companies": "MERCK CANADA INC", "start": "2026-12-18", "end": "", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND", "Strength": "80MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02298791", "Start date": "2026-12-18", "End date": "", "Updated": "2026-07-16", "Report ID": "275220"}, {"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND", "Strength": "125MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02298805", "Start date": "2027-04-30", "End date": "", "Updated": "2026-07-16", "Report ID": "275223"}, {"Molecule": "Aprepitant (capsule)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "MERCK CANADA INC", "Brand name": "EMEND TRI-PACK", "Strength": "80MG 125MG", "Dosage form": "Capsule Kit", "Form match": "Other form", "DIN": "02298813", "Start date": "2027-02-26", "End date": "", "Updated": "2026-07-16", "Report ID": "275233"}], "imports": []}, {"i": 6, "name": "Bupivacaine", "forms": "Solution", "hikma_us": "Bupivacaine HCl Injection, 8 SKUs (25 mg/10 mL to 250 mg/50 mL)", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "Yes", "companies": "FORMATIVE PHARMA INC., OMEGA LABORATORIES LIMITED, STERIMAX INC", "start": "2026-06-22", "end": "2027-03-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Bupivacaine (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02512424", "Start date": "2026-06-22", "End date": "2027-03-31", "Updated": "2026-09-11", "Report ID": "288791"}, {"Molecule": "Bupivacaine (solution)", "Status": "To be discontinued", "Tier 3": "No", "Company": "STERIMAX INC", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02460645", "Start date": "2026-06-30", "End date": "", "Updated": "2025-12-11", "Report ID": "274162"}, {"Molecule": "Bupivacaine (solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "FORMATIVE PHARMA INC.", "Brand name": "BUPIVACAINE HYDROCHLORIDE IN DEXTROSE INJECTION USP", "Strength": "7.5MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02536714", "Start date": "2026-12-01", "End date": "", "Updated": "2026-09-21", "Report ID": "289841"}, {"Molecule": "Bupivacaine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "PFIZER CANADA ULC", "Brand name": "MARCAINE", "Strength": "150MG", "Dosage form": "Solution Solution", "Form match": "Other form", "DIN": "02241917", "Start date": "2025-03-30", "End date": "", "Updated": "2026-08-04", "Report ID": "290610"}], "imports": [{"product": "Bupisen iperbarica 7,5 mg/ml soluzione iniettabile, Bupivacaine Hydrochloride", "importer": "Formative Pharma Inc.", "origin": "Italy, Italian Medicines Agency, MA No. 034171215", "added": "2026-09-18", "cutoff": "2027-03-31", "cutoff_raw": "March 31, 2027", "state": "Active", "unsure": false}, {"product": "Marcain – Adrenalin, Bupivacaine hydrochloride and Epinephrine", "importer": "Aspen Pharmacare Canada", "origin": "Denmark, Danish Medicines Agency, 10213", "added": "2024-07-29", "cutoff": "2024-09-30", "cutoff_raw": "September 30, 2024", "state": "Expired", "unsure": false}, {"product": "Bupivacaine with Adrenaline (Epinephrine) Injection (0.25%), Bupivacaine hydrochloride and Adrenaline (Epinephrine)", "importer": "SteriMax Inc.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 12762/0556", "added": "2024-05-28", "cutoff": "2024-12-05", "cutoff_raw": "December 5, 2024", "state": "Expired", "unsure": false}, {"product": "Bupivacaine with Adrenaline (Epinephrine) Injection (0.5%), Bupivacaine hydrochloride and Adrenaline (Epinephrine)", "importer": "SteriMax Inc.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 12762/0557", "added": "2024-05-28", "cutoff": "2024-09-01", "cutoff_raw": "September 1, 2024", "state": "Expired", "unsure": false}]}, {"i": 7, "name": "Calcitonin", "forms": "Solution", "hikma_us": "Calcitonin Salmon Injection 400 units/2 mL (NDC 24201-400-02)", "hikma_ca": "No", "status": "Discontinued", "tier3": "Yes", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Calcitonin (solution)", "Status": "Discontinued", "Tier 3": "Yes", "Company": "SANOFI-AVENTIS CANADA INC", "Brand name": "CALCIMAR", "Strength": "200UNIT", "Dosage form": "Solution", "Form match": "Yes", "DIN": "01926691", "Start date": "2026-08-28", "End date": "", "Updated": "2026-09-10", "Report ID": "279452"}], "imports": [{"product": "Calcitonin Salmon Injection, USP, Synthetic,Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, United States, Food and Drug Administration, National Drug Code (NDC) 24201-400-02", "added": "2026-08-01", "cutoff": "2027-07-31", "cutoff_raw": "July 31, 2027", "state": "Active", "unsure": false}, {"product": "Calcitonin Salmon Injection, USP, Synthetic,Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, United States, Food and Drug Administration, National Drug Code (NDC) 24201-400-02", "added": "2025-04-03", "cutoff": "2026-01-31", "cutoff_raw": "January 31, 2026", "state": "Expired", "unsure": false}, {"product": "Calcitonin Salmon Injection, USP, Synthetic Calcitonin Salmon", "importer": "Hikma Canada Limited", "origin": "United States, US FDA, NDC 24201-400-02", "added": "2023-04-24", "cutoff": "2024-09-30", "cutoff_raw": "September 30, 2024", "state": "Expired", "unsure": false}]}, {"i": 8, "name": "Calcitriol", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Bonky Injection 1 μg, Calcitriol", "importer": "Septa Pharmaceuticals Inc", "origin": "South Korea, Ministry of Food and Drug Safety, 78", "added": "2026-08-07", "cutoff": "2027-06-14", "cutoff_raw": "June 14, 2027", "state": "Active", "unsure": false}, {"product": "Calcitriol Injection USP, Calcitriol", "importer": "Sterimax Inc.", "origin": "United States, Food and Drug Administration, NDC 72266-251-10", "added": "2024-06-14", "cutoff": "2026-07-31", "cutoff_raw": "July 31, 2026", "state": "Expired", "unsure": false}]}, {"i": 9, "name": "Carbachol", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "ALCON CANADA INC", "start": "2026-09-28", "end": "2027-01-04", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Carbachol (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "ALCON CANADA INC", "Brand name": "MIOSTAT OPHTHALMIC LIQ 0.01%", "Strength": ".01%", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00042544", "Start date": "2026-09-28", "End date": "2027-01-04", "Updated": "2026-10-13", "Report ID": "293982"}], "imports": [{"product": "Miostat, Carbachol", "importer": "Alcon Canada Inc", "origin": "United States, US FDA, NDC 0065-0023-15", "added": "2023-02-16", "cutoff": "2023-04-01", "cutoff_raw": "April 1, 2023", "state": "Expired", "unsure": false}]}, {"i": 10, "name": "Cefazolin", "forms": "Solution", "hikma_us": "Cefazolin for Injection, powder 500 mg to 10 g", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-06-02", "end": "", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Cefazolin (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "CEFAZOLIN INJECTION, USP", "Strength": "20MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02496313", "Start date": "2025-06-02", "End date": "", "Updated": "2025-11-19", "Report ID": "254446"}, {"Molecule": "Cefazolin (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "CEFAZOLIN INJECTION, USP", "Strength": "20MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02496313", "Start date": "2025-06-14", "End date": "", "Updated": "2025-11-19", "Report ID": "254442"}, {"Molecule": "Cefazolin (solution)", "Status": "Resolved", "Tier 3": "No", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "CEFAZOLIN FOR INJECTION USP", "Strength": "1G", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02308959", "Start date": "2026-08-10", "End date": "2026-10-05", "Updated": "2026-10-06", "Report ID": "290996"}], "imports": [{"product": "Cefazolin in Dextrose, Cefazolin", "importer": "Baxter Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0338-3503-41 (1g in 50mL); 0338-3508-41 (2g in 100mL)", "added": "2025-06-17", "cutoff": "2026-08-31", "cutoff_raw": "August 31, 2026", "state": "Expired", "unsure": false}]}, {"i": 11, "name": "Cyclophosphamide", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION, STERIMAX INC", "start": "2026-01-10", "end": "", "open": 6, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "2000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241800", "Start date": "2026-01-10", "End date": "", "Updated": "2026-02-23", "Report ID": "274375"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "1000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241799", "Start date": "2026-02-10", "End date": "", "Updated": "2026-09-23", "Report ID": "277755"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "500MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241798", "Start date": "2026-02-13", "End date": "", "Updated": "2026-02-23", "Report ID": "278081"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "CYCLOPHOSPHAMIDE FOR INJECTION USP", "Strength": "2000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02547694", "Start date": "2026-02-20", "End date": "", "Updated": "2026-02-23", "Report ID": "278135"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "CYCLOPHOSPHAMIDE FOR INJECTION USP", "Strength": "1000MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02547686", "Start date": "2026-02-20", "End date": "", "Updated": "2026-02-23", "Report ID": "278132"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "To be discontinued", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX", "Strength": "200MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241797", "Start date": "2026-12-31", "End date": "", "Updated": "2026-02-23", "Report ID": "265253"}, {"Molecule": "Cyclophosphamide (powder for solution)", "Status": "To be discontinued", "Tier 3": "No", "Company": "BAXTER CORPORATION", "Brand name": "PROCYTOX TAB 25MG", "Strength": "25MG", "Dosage form": "Tablet", "Form match": "Other form", "DIN": "02241795", "Start date": "2026-03-05", "End date": "", "Updated": "2026-03-05", "Report ID": "265250"}], "imports": [{"product": "Cyclophosphamide for Injection, USP, cyclophosphamide", "importer": "Sandoz Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0781-3244-94", "added": "2026-04-10", "cutoff": "2026-05-31", "cutoff_raw": "May 31, 2026", "state": "Expired", "unsure": false}, {"product": "Cyclophosphamide for Injection, USP, cyclophosphamide", "importer": "Sandoz Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0781-3255-94", "added": "2026-04-10", "cutoff": "2026-05-31", "cutoff_raw": "May 31, 2026", "state": "Expired", "unsure": false}, {"product": "Cyclophosphamide Seacross 2000 mg, cyclophosphamide", "importer": "Andone Pharmaceutical Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 41013/0081", "added": "2026-03-03", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}]}, {"i": 12, "name": "Dacarbazine", "forms": "Powder for solution", "hikma_us": "Dacarbazine for Injection 200 mg/vial (NDC 0143-9245-10)", "hikma_ca": "No", "status": "Anticipated shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2027-01-06", "end": "2028-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dacarbazine (powder for solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DACARBAZINE FOR INJECTION BP", "Strength": "600MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241445", "Start date": "2027-01-06", "End date": "2028-12-31", "Updated": "2026-10-01", "Report ID": "290934"}], "imports": []}, {"i": 13, "name": "Dexamethasone", "forms": "Liquid", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2025-11-26", "end": "2026-12-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2025-11-26", "End date": "2026-12-31", "Updated": "2026-09-02", "Report ID": "272781"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2026-02-20", "End date": "2026-12-31", "Updated": "2026-09-09", "Report ID": "278479"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE-OMEGA", "Strength": "4MG", "Dosage form": "Liquid", "Form match": "Yes", "DIN": "02204266", "Start date": "2026-08-12", "End date": "", "Updated": "2026-08-12", "Report ID": "291213"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "No", "Company": "TARO PHARMACEUTICALS INC", "Brand name": "TARO-CIPROFLOXACIN/DEXAMETHASONE", "Strength": "0.3% 0.1%", "Dosage form": "Suspension", "Form match": "Other form", "DIN": "02481901", "Start date": "2026-03-04", "End date": "2026-10-30", "Updated": "2026-09-29", "Report ID": "285469"}, {"Molecule": "Dexamethasone (liquid)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "STERIMAX INC", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJECTION, USP", "Strength": "4MG", "Dosage form": "Solution Liquid", "Form match": "Other form", "DIN": "01977547", "Start date": "2026-04-10", "End date": "2026-10-01", "Updated": "2026-10-01", "Report ID": "282805"}, {"Molecule": "Dexamethasone (liquid)", "Status": "To be discontinued", "Tier 3": "No", "Company": "NOVARTIS PHARMACEUTICALS CANADA INC", "Brand name": "CIPRODEX", "Strength": "0.1% 0.3%", "Dosage form": "Suspension", "Form match": "Other form", "DIN": "02252716", "Start date": "2027-09-30", "End date": "", "Updated": "2026-09-29", "Report ID": "294772"}], "imports": []}, {"i": 14, "name": "Dexamethasone", "forms": "Solution", "hikma_us": "Dexamethasone Sodium Phosphate Injection 4 mg/mL, 10 mg/mL, 20 mg/5 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-07-21", "end": "2027-05-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dexamethasone (solution)", "Status": "Resolved", "Tier 3": "Yes", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJ USP 4MG/ML", "Strength": "4MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00664227", "Start date": "2026-06-22", "End date": "2026-09-08", "Updated": "2026-10-05", "Report ID": "287779"}, {"Molecule": "Dexamethasone (solution)", "Status": "Resolved", "Tier 3": "No", "Company": "SANDOZ CANADA INCORPORATED", "Brand name": "DEXAMETHASONE SODIUM PHOSPHATE INJ USP 4MG/ML", "Strength": "4MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00664227", "Start date": "2026-06-22", "End date": "2026-09-08", "Updated": "2026-10-06", "Report ID": "286117"}, {"Molecule": "Dexamethasone (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXAMETHASONE OMEGA UNIDOSE", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02387743", "Start date": "2026-07-21", "End date": "2027-05-31", "Updated": "2026-09-09", "Report ID": "289689"}], "imports": [{"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Juno Pharma Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 25021-052-05", "added": "2026-08-07", "cutoff": "2026-09-06", "cutoff_raw": "Sept 6, 2026", "state": "Expired", "unsure": false}, {"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Fresenius Kabi Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 63323-165-02 (vial), 63323-165-01 (tray)", "added": "2026-07-07", "cutoff": "2026-11-30", "cutoff_raw": "November 30, 2026", "state": "Active", "unsure": false}, {"product": "Dexamethasone Sodium Phosphate Injection, USP, Dexamethasone Sodium Phosphate", "importer": "Fresenius Kabi Canada", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 63323-165-03 (vial), 63323-165-05 (tray)", "added": "2026-07-07", "cutoff": "2026-09-06", "cutoff_raw": "September 6, 2026", "state": "Expired", "unsure": false}]}, {"i": 15, "name": "Dextrose", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED, PFIZER CANADA ULC", "start": "2026-06-29", "end": "2027-02-15", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Dextrose (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "DEXTROSE INJECTION", "Strength": "50%", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02517132", "Start date": "2026-06-29", "End date": "2026-11-30", "Updated": "2026-08-12", "Report ID": "288363"}, {"Molecule": "Dextrose (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DEXTROSE INJECTION USP", "Strength": "500MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02468514", "Start date": "2026-09-09", "End date": "2026-11-30", "Updated": "2026-10-08", "Report ID": "287226"}, {"Molecule": "Dextrose (solution)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "DEXTROSE INJECTION USP", "Strength": "500MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02468514", "Start date": "2026-09-09", "End date": "2027-02-15", "Updated": "2026-09-09", "Report ID": "285007"}], "imports": [{"product": "Glucose Intravenous Infusion 50% w/v, Glucose", "importer": "Juno Pharma Canada Inc.", "origin": "United Kingdom, Medicines and Healthcare Products Regulatory Agency, PL 01502/0005R", "added": "2026-07-22", "cutoff": "2027-02-28", "cutoff_raw": "February 28, 2027", "state": "Active", "unsure": false}, {"product": "Glucose Intravenous Infusion 50% w/v, glucose", "importer": "Juno Pharmaceuticals Corp.", "origin": "United Kingdom, Medicines and Healthcare products Regulatory Agency, PL 01502/0005R", "added": "2023-11-07", "cutoff": "2025-01-15", "cutoff_raw": "January 15, 2025", "state": "Expired", "unsure": false}]}, {"i": 16, "name": "Disofenin", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Disofenin (kit)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS DISIDA KIT", "Strength": "20MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02486008", "Start date": "2026-09-15", "End date": "", "Updated": "2026-08-11", "Report ID": "291191"}], "imports": []}, {"i": 17, "name": "Disopyramide", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2025-01-24", "end": "", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Disopyramide (capsule)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "RYTHMODAN", "Strength": "100MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "02224801", "Start date": "2025-01-24", "End date": "", "Updated": "2025-05-29", "Report ID": "248525"}], "imports": [{"product": "Disopyramide Phosphate Capsules, USP, Disopyramide Phosphate", "importer": "Dr. Reddy's Laboratories Canada Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 75907-027-01", "added": "2025-06-20", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 18, "name": "Epinephrine", "forms": "Solution", "hikma_us": "", "hikma_ca": "Yes", "status": "Actual shortage", "tier3": "No", "companies": "PFIZER CANADA ULC", "start": "2026-05-22", "end": "2026-12-21", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Epinephrine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "PFIZER CANADA ULC", "Brand name": "EPINEPHRINE INJECTION USP", "Strength": "1MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "00721891", "Start date": "2026-05-22", "End date": "2026-12-21", "Updated": "2026-09-18", "Report ID": "282428"}], "imports": [{"product": "Epinephrine Injection USP, Epinephrine", "importer": "Amphastar Pharmaceuticals, Inc.", "origin": "United States of America, Food and Drug Administration, NDC #76329-3318-1", "added": "2024-08-08", "cutoff": "2025-06-30", "cutoff_raw": "June 30, 2025", "state": "Expired", "unsure": false}]}, {"i": 19, "name": "Etoposide", "forms": "Capsule", "hikma_us": "Etoposide Injection 100 mg, 500 mg, 1 g", "hikma_ca": "Yes", "status": "Anticipated shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2026-09-04", "end": "", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Etoposide (capsule)", "Status": "Anticipated shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "VEPESID", "Strength": "50MG", "Dosage form": "Capsule", "Form match": "Yes", "DIN": "00616192", "Start date": "2026-09-04", "End date": "", "Updated": "2026-08-25", "Report ID": "289101"}, {"Molecule": "Etoposide (capsule)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "TEVA CANADA LIMITED", "Brand name": "ETOPOSIDE INJECTION", "Strength": "20MG", "Dosage form": "Solution Liquid", "Form match": "Other form", "DIN": "02080036", "Start date": "2026-12-31", "End date": "2027-02-28", "Updated": "2026-09-25", "Report ID": "294516"}], "imports": [{"product": "VePesid, Etoposide, USP", "importer": "SteriMax Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 69238-2811-2", "added": "2026-10-14", "cutoff": "2026-11-01", "cutoff_raw": "November 1, 2026", "state": "Expiring", "unsure": false}, {"product": "Etoposide Capsules, USP, Etoposide", "importer": "SteriMax Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 83270-451-05", "added": "2026-09-03", "cutoff": "2027-03-01", "cutoff_raw": "March 1, 2027", "state": "Active", "unsure": false}]}, {"i": 20, "name": "Famotidine", "forms": "Solution", "hikma_us": "Famotidine Injection 20 mg/2 mL, 40 mg/4 mL, 200 mg/20 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "OMEGA LABORATORIES LIMITED", "start": "2026-03-02", "end": "2026-11-30", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Famotidine (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "FAMOTIDINE OMEGA -(WITHOUT PRESERVATIVE)", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02247735", "Start date": "2026-03-02", "End date": "2026-11-30", "Updated": "2026-07-29", "Report ID": "279595"}, {"Molecule": "Famotidine (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "OMEGA LABORATORIES LIMITED", "Brand name": "FAMOTIDINE OMEGA -(WITH PRESERVATIVE,BENZYL ALCOHOL)", "Strength": "10MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02247745", "Start date": "2026-07-06", "End date": "2026-11-30", "Updated": "2026-09-09", "Report ID": "288796"}, {"Molecule": "Famotidine (solution)", "Status": "Anticipated shortage", "Tier 3": "No", "Company": "SANIS HEALTH INC", "Brand name": "FAMOTIDINE", "Strength": "20MG", "Dosage form": "Tablet", "Form match": "Other form", "DIN": "02351102", "Start date": "2026-05-25", "End date": "", "Updated": "2026-05-25", "Report ID": "285868"}], "imports": [{"product": "Famotidine Injection USP, Famotidine", "importer": "Juno Pharma Canada Inc", "origin": "United States, South United States, Food and Drug Administration, NDC 25021-753-02", "added": "2026-05-14", "cutoff": "2026-11-30", "cutoff_raw": "November 31, 2026", "state": "Active", "unsure": false}]}, {"i": 21, "name": "Glucagon", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Glucagon Injection, glucagon", "importer": "Amphastar Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0548-5850-00", "added": "2023-05-19", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 22, "name": "Ifosfamide", "forms": "Powder for solution", "hikma_us": "Ifosfamide Injection 1 g/20 mL, 3 g/60 mL", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-12-19", "end": "2026-10-06", "open": 2, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Ifosfamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "IFEX", "Strength": "3G", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241356", "Start date": "2025-12-19", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "273129"}, {"Molecule": "Ifosfamide (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "IFEX", "Strength": "1G", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02241357", "Start date": "2025-12-19", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "273126"}], "imports": [{"product": "Ifosfamide for Injection, Ifosfamide", "importer": "SteriMax Inc.", "origin": "China, National Medical Products Administration, National Drug Approval Number: H20093079", "added": "2026-05-22", "cutoff": "2026-09-30", "cutoff_raw": "September 30, 2026", "state": "Expired", "unsure": false}, {"product": "IFEX, ifosfamide", "importer": "Baxter Corporation", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0338-3993-01", "added": "2026-01-16", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}, {"product": "Ifosfamide for Injection, ifosfamide", "importer": "Baxter Corporation", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 10019-926-02 (carton), 10019-926-16 (container)", "added": "2026-01-16", "cutoff": "2026-05-01", "cutoff_raw": "May 1, 2026", "state": "Expired", "unsure": false}]}, {"i": 23, "name": "Lomustine", "forms": "Capsule", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [], "imports": [{"product": "Lomustine Medac, lomustine", "importer": "Septa Pharmaceuticals Inc.", "origin": "UnitedKingdom, Medicines and Healthcare Products Regulatory Agency (MHRA), PL 11587/0003", "added": "2025-09-19", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}, {"product": "Gleostine, lomustine", "importer": "Septa Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 58181-3040-5 (10 mg), 58181-3041-5 (40 mg)", "added": "2024-10-17", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 24, "name": "MAA (macroaggregated albumin)", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "start": "2026-07-30", "end": "2027-01-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "MAA (macroaggregated albumin) (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MAA", "Strength": "2.5MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02329417", "Start date": "2026-07-30", "End date": "2027-01-31", "Updated": "2026-10-05", "Report ID": "291124"}, {"Molecule": "MAA (macroaggregated albumin) (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MAA KIT", "Strength": "2.1MG", "Dosage form": "Suspension Kit", "Form match": "Other form", "DIN": "02360845", "Start date": "2026-07-23", "End date": "2026-11-30", "Updated": "2026-09-03", "Report ID": "290505"}], "imports": [{"product": "Macrosalb Medi-Radiopharma 2.5 mg kit for radiopharmaceutical preparation, Macroaggregated human albumin", "importer": "Quality & Compliance Services Inc. on behalf of NUCM Radiopharma Inc.", "origin": "Hungary, European Medicines Agency, OGYI-T-24216/01", "added": "2026-10-02", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 25, "name": "Medronic acid", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "No", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MDP-25", "Strength": "25MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329239", "Start date": "2026-05-27", "End date": "2027-02-15", "Updated": "2026-09-17", "Report ID": "291138"}, {"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "No", "Company": "JUBILANT DRAXIMAGE INC. DBA JUBILANT RADIOPHARMA", "Brand name": "DRAXIMAGE MDP", "Strength": "10MG", "Dosage form": "Powder For Solution", "Form match": "Other form", "DIN": "02329409", "Start date": "2026-06-03", "End date": "2027-01-31", "Updated": "2026-10-20", "Report ID": "291127"}, {"Molecule": "Medronic acid (kit)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS MDP KIT", "Strength": "15MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02485834", "Start date": "2026-07-23", "End date": "2026-10-31", "Updated": "2026-09-01", "Report ID": "290493"}], "imports": [{"product": "Skeleton 5 mg powder for injection for solution, Medronic Acid", "importer": "Quality & Compliance Services Inc. on behalf of NUCM Radiopharma Inc.", "origin": "Hungary, European Medicines Agency, OGYI-T-8815/01", "added": "2026-10-02", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}, {"i": 26, "name": "Mesna", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "BAXTER CORPORATION", "start": "2025-12-15", "end": "2026-10-31", "open": 3, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "No", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02371839", "Start date": "2025-12-15", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "274386"}, {"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02241411", "Start date": "2026-06-15", "End date": "2026-10-31", "Updated": "2026-10-06", "Report ID": "287221"}, {"Molecule": "Mesna (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "BAXTER CORPORATION", "Brand name": "UROMITEXAN", "Strength": "100MG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02241411", "Start date": "2026-06-15", "End date": "2026-10-06", "Updated": "2026-10-06", "Report ID": "286954"}], "imports": []}, {"i": 27, "name": "Peginterferon alfa-2a", "forms": "Solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PHARMAAND GMBH", "start": "2024-10-29", "end": "2026-09-15", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Peginterferon alfa-2a (solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PHARMAAND GMBH", "Brand name": "PEGASYS", "Strength": "180MCG", "Dosage form": "Solution", "Form match": "Yes", "DIN": "02248077", "Start date": "2024-10-29", "End date": "2026-09-15", "Updated": "2026-09-15", "Report ID": "241511"}], "imports": [{"product": "Pegasys (Peginterferon Alfa-2A)", "importer": "Accelera Pharma Canada Inc.", "origin": "Ireland, European Medicines Agency, SKU: 09120099674072", "added": "2025-06-24", "cutoff": "2026-06-30", "cutoff_raw": "June 30, 2026", "state": "Expired", "unsure": false}]}, {"i": 28, "name": "Penicillin G benzathine", "forms": "Suspension", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2025-12-02", "end": "2027-02-26", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Penicillin G benzathine (suspension)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "BICILLIN L-A", "Strength": "1200000UNIT", "Dosage form": "Suspension", "Form match": "Yes", "DIN": "02291924", "Start date": "2025-12-02", "End date": "2027-02-26", "Updated": "2026-05-26", "Report ID": "273071"}], "imports": [{"product": "Lentocilin S 1200, Benzathine benzylpenicillin", "importer": "Septa Pharmaceuticals Inc.", "origin": "Portugal, Autoridade Nacional do Medicamento e Produtos de Saúde (INFARMED), 9908301", "added": "2026-02-04", "cutoff": "2027-02-26", "cutoff_raw": "February 26, 2027", "state": "Active", "unsure": false}]}, {"i": 29, "name": "Raltitrexed", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "PFIZER CANADA ULC", "start": "2026-08-07", "end": "2028-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Raltitrexed (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "PFIZER CANADA ULC", "Brand name": "TOMUDEX", "Strength": "2MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02229566", "Start date": "2026-08-07", "End date": "2028-12-31", "Updated": "2026-10-01", "Report ID": "290925"}], "imports": [{"product": "Riventra, raltitrexed", "importer": "SteriMax Inc.", "origin": "China, National Medical Products Administration, National Drug Approval Number: GYZZH20213097", "added": "2026-10-09", "cutoff": "2027-04-30", "cutoff_raw": "April 30, 2027", "state": "Active", "unsure": false}]}, {"i": 30, "name": "Tetrasodium pyrophosphate", "forms": "Kit", "hikma_us": "", "hikma_ca": "No", "status": "No report found", "tier3": "", "companies": "", "start": "", "end": "", "open": 0, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Tetrasodium pyrophosphate (kit)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CALGARY RADIOPHARMACEUTICAL CENTRE / ALBERTA HEALTH SERVICES", "Brand name": "STANNOUS PYP KIT", "Strength": "20MG", "Dosage form": "Kit Solution", "Form match": "Other form", "DIN": "02486016", "Start date": "2026-07-23", "End date": "2026-10-31", "Updated": "2026-10-02", "Report ID": "290498"}], "imports": [{"product": "Pyroscint, Sodium pyrophosphate decahydrate", "importer": "Isologic Innovative Radiopharmaceuticals Ontario Ltd.", "origin": "Hungary, European Medicines Agency, OGYI-T-8817/01", "added": "2026-09-14", "cutoff": "2026-12-15", "cutoff_raw": "December 15, 2026", "state": "Active", "unsure": false}]}, {"i": 31, "name": "Verteporfin", "forms": "Powder for solution", "hikma_us": "", "hikma_ca": "No", "status": "Actual shortage", "tier3": "Yes", "companies": "CHEPLAPHARM ARZNEIMITTEL GMBH", "start": "2025-05-15", "end": "2026-12-31", "open": 1, "stage": "", "notes": "", "changed": "", "reports": [{"Molecule": "Verteporfin (powder for solution)", "Status": "Actual shortage", "Tier 3": "Yes", "Company": "CHEPLAPHARM ARZNEIMITTEL GMBH", "Brand name": "VISUDYNE", "Strength": "15MG", "Dosage form": "Powder For Solution", "Form match": "Yes", "DIN": "02242367", "Start date": "2025-05-15", "End date": "2026-12-31", "Updated": "2026-10-01", "Report ID": "265976"}], "imports": [{"product": "Visudyne, Verteporfin for injection", "importer": "Xediton Pharmaceuticals Inc.", "origin": "United States, Food and Drug Administration, National Drug Code (NDC): 0187-5600-15", "added": "2026-09-25", "cutoff": "2026-12-31", "cutoff_raw": "December 31, 2026", "state": "Active", "unsure": false}]}], "warnings": [], "changes": ["Aminophylline (solution): report 284545 changed, end 2026-10-19 to 2026-10-29"], "first_run": false, "scanned": 9400, "import_rows": 165, "stale_days": 8, "show_notes": false};
 (function(){
-var $=function(s){return document.querySelector(s)};
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
-return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function fmt(d){if(!d)return"";var x=new Date(d+"T00:00:00");
-return isNaN(x)?d:x.toLocaleDateString("en-CA",{year:"numeric",
-month:"short",day:"numeric"})}
-var quick="",open={},COLS=DATA.show_notes?6:4;
-var age=Math.floor((Date.now()-new Date(DATA.run_date+"T00:00:00"))/864e5);
-$("#stamp").innerHTML='<span class="chip">Updated '+esc(fmt(DATA.run_date))+
-'</span><span class="chip">Import list issued '+
-esc(fmt(DATA.issued)||"unknown")+'</span>';
-var b="";
-if(age>DATA.stale_days)b+='<div class="banner">This tracker has not '+
-'updated since '+esc(fmt(DATA.run_date))+' ('+age+' days). The weekly '+
-'update may have failed; treat it as out of date.</div>';
-$("#banners").innerHTML=b;
-// Data notes (a scan that did not finish, an unexpected list layout) sit
-// quietly under the table, not as banners at the top: at the top they
-// read as the page being broken. They are still always shown.
-if(DATA.warnings.length)$("#notes").innerHTML='<details><summary>Data '+
-'notes ('+DATA.warnings.length+')</summary><ul>'+DATA.warnings.map(
-function(w){return"<li>"+esc(w)+"</li>"}).join("")+'</ul></details>';
-var ch=DATA.first_run?"<p class='dim'>First run, so there is nothing to "+
-"compare against yet. Next week's changes will be listed here.</p>":
-DATA.changes.length?"<ul>"+DATA.changes.map(function(c){return"<li>"+
-esc(c)+"</li>"}).join("")+"</ul>":"<p class='dim'>No changes since the "+
-"last update.</p>";
-$("#changes").innerHTML="<h2>Changed since last update</h2>"+ch;
-var R=DATA.rows;
-function live(r){return r.imports.filter(function(i){
-return i.state==="Active"||i.state==="Expiring"})}
-var Q=[["","Molecules",function(){return true}],
-["hikma","Hikma carries it",function(r){return!!r.hikma_us}],
-["open","Open shortage",function(r){return r.open>0}],
-["live","Active importer",function(r){return live(r).length>0}],
-["gap","Hikma carries it, nobody importing",function(r){
-return!!r.hikma_us&&!live(r).length}],
-["soon","Import ending within 30 days",function(r){
-return r.imports.some(function(i){return i.state==="Expiring"})}]];
-function stats(){$("#stats").innerHTML=Q.map(function(q){
-return '<button class="stat'+(q[0]==="gap"?" key":"")+'" data-q="'+q[0]+
-'" aria-pressed="'+
-(quick===q[0])+'"><b>'+R.filter(q[2]).length+'</b><span>'+q[1]+
-'</span></button>'}).join("")}
-function stCls(s){return/Actual/.test(s)?"bad":/Anticipated|To be/.test(s)?
-"warn":/No report/.test(s)?"off":"off"}
-function shCell(r){if(r.status==="No report found")
-return'<span class="dim">No report found</span>';
-var h='<span class="pill '+stCls(r.status)+'">'+esc(r.status)+'</span>';
-if(r.tier3==="Yes")h+='<span class="pill t3">Tier 3</span>';
-if(r.start||r.end)h+='<div class="dim mono">'+esc(fmt(r.start))+
-(r.end?" to "+esc(fmt(r.end)):"")+'</div>';
-if(r.companies)h+='<div class="dim">'+esc(r.companies)+'</div>';return h}
-function impCell(r){if(!r.imports.length)
-return'<span class="dim">No entries</span>';
-var l=live(r).slice().sort(function(a,b){return a.cutoff<b.cutoff?-1:1});
-var h=l.map(function(i){return'<span class="pill '+(i.state==="Expiring"?
-"warn":"ok")+'">'+esc(i.importer)+' to '+esc(fmt(i.cutoff))+'</span>'})
-.join("");var x=r.imports.length-l.length;
-if(x)h+='<span class="pill off">'+x+' expired</span>';return h}
-function detail(r){var h='<h3>Hikma</h3><div>'+(r.hikma_us?esc(r.hikma_us):
-'<span class="dim">No match in the Hikma US injectables catalog</span>')+
-(r.hikma_ca==="Yes"?' <span class="pill ok">In Hikma Canada portfolio'+
-'</span>':'')+'</div>';
-h+='<h3>Shortage reports</h3>';
-h+=r.reports.length?'<table class="inner"><tr><th>Status</th><th>Tier 3'+
-'</th><th>Company</th><th>Brand</th><th>Strength</th><th>Form</th>'+
-'<th>Start</th><th>End</th><th>Report</th></tr>'+r.reports.map(function(x){
-return'<tr><td>'+esc(x["Status"])+'</td><td>'+esc(x["Tier 3"])+
-'</td><td>'+esc(x["Company"])+'</td><td>'+esc(x["Brand name"])+
-'</td><td>'+esc(x["Strength"])+'</td><td>'+esc(x["Dosage form"])+
-(x["Form match"]==="Yes"?"":' <span class="pill off">other form</span>')+
-'</td><td class="mono">'+esc(fmt(x["Start date"]))+
-'</td><td class="mono">'+esc(fmt(x["End date"]))+
-'</td><td class="mono">'+esc(x["Report ID"])+'</td></tr>'}).join("")+
-'</table>':'<div class="dim">None in the last two years.</div>';
-h+='<h3>Importation list</h3>';
-h+=r.imports.length?'<table class="inner"><tr><th>Product</th><th>Importer'+
-'</th><th>Origin</th><th>Added</th><th>Cutoff</th><th></th></tr>'+
-r.imports.map(function(i){return'<tr><td>'+esc(i.product)+'</td><td>'+
-esc(i.importer)+'</td><td>'+esc(i.origin)+'</td><td class="mono">'+
-esc(fmt(i.added))+'</td><td class="mono">'+esc(fmt(i.cutoff)||i.cutoff_raw)+
-'</td><td><span class="pill '+({Active:"ok",Expiring:"warn"}[i.state]||
-"off")+'">'+esc(i.state)+'</span>'+(i.unsure?' <span class="pill warn">'+
-'check form</span>':'')+'</td></tr>'}).join("")+'</table>':
-'<div class="dim">No entries.</div>';
-if(r.changed)h+='<h3>Changed since last update</h3><div>'+esc(r.changed)+
-'</div>';return'<tr class="detail"><td colspan="'+COLS+'" class="detail">'+
-'<div class="panel">'+h+'</div></td></tr>'}
-function render(){stats();var q=$("#q").value.trim().toLowerCase(),
-st=$("#stage").value,f=Q.filter(function(x){return x[0]===quick})[0][2];
-var list=R.filter(function(r){if(st&&r.stage!==st)return false;
-if(!f(r))return false;if(!q)return true;return JSON.stringify(r)
-.toLowerCase().indexOf(q)>=0});
-$("#count").textContent=list.length+" of "+R.length+" shown";
-$("#rows").innerHTML=list.length?list.map(function(r){
-var s={Pursuing:"ok",Reviewing:"warn",Parked:"off"}[r.stage]||"acc";
-return'<tr class="row" tabindex="0" data-i="'+r.i+'" aria-expanded="'+
-!!open[r.i]+'"><td><div class="mol">'+esc(r.name)+'</div><div class="dim">'+
-esc(r.forms)+'</div></td><td>'+(r.hikma_us?'<span class="pill acc">Hikma has it'+
-'</span>':'<span class="dim">-</span>')+'</td><td>'+shCell(r)+'</td><td>'+
-impCell(r)+'</td>'+(DATA.show_notes?'<td><span class="pill '+s+'">'+
-esc(r.stage)+'</span></td><td class="dim">'+esc(r.notes)+'</td>':'')+
-'</tr>'+
-(open[r.i]?detail(r):"")}).join(""):'<tr><td colspan="'+COLS+
-'" class="dim">'+
-'Nothing matches these filters.</td></tr>'}
-document.addEventListener("click",function(e){
-var s=e.target.closest(".stat");if(s){quick=quick===s.dataset.q?"":
-s.dataset.q;render();return}
-var t=e.target.closest("tr.row");if(t){open[t.dataset.i]=!open[t.dataset.i];
-render()}});
-document.addEventListener("keydown",function(e){var t=e.target.closest&&
-e.target.closest("tr.row");if(t&&(e.key==="Enter"||e.key===" ")){
-e.preventDefault();t.click()}});
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const D=s=>s?new Date(s+"T00:00:00"):null;
+const fmt=s=>{const d=D(s);return d&&!isNaN(d)?d.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}):"";};
+const mon=d=>d.toLocaleDateString("en-CA",{month:"short",year:"numeric"});
+const today=new Date();today.setHours(0,0,0,0);
+// Health Canada sends company names in capitals; show them as names.
+const nice=s=>String(s||"").toLowerCase().replace(/(^|[ (.&,-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+const OPEN=["Actual shortage","Anticipated shortage","To be discontinued"];
+
+const rows=DATA.rows.map(r=>{
+  const reps=r.reports.filter(x=>x["Form match"]==="Yes");
+  const open=reps.filter(x=>OPEN.includes(x.Status));
+  const live=r.imports.filter(i=>i.state==="Active"||i.state==="Expiring")
+    .sort((a,b)=>a.cutoff<b.cutoff?-1:1);
+  const actual=open.some(x=>x.Status==="Actual shortage");
+  const hk=!!r.hikma_us;
+  let kind,say;
+  if(open.length&&!live.length){kind="gap";
+    say=(actual?"Short now":"Shortage expected")+", nobody cleared to import";}
+  else if(open.length){kind="cov";
+    say="Covered by "+nice(live[0].importer)+" until "+mon(D(live[0].cutoff));}
+  else if(live.length){kind="cov";
+    say="No open shortage. "+nice(live[0].importer)+" can import until "+mon(D(live[0].cutoff));}
+  else{kind="none";say="No open shortage on file";}
+  const soon=r.imports.some(i=>i.state==="Expiring");
+  const rank=(kind==="gap"?0:kind==="cov"&&open.length?2:kind==="cov"?3:4)-(hk&&kind==="gap"?1:0)-(soon?.5:0);
+  return Object.assign({},r,{reps,open,live,kind,say,hk,soon,actual,rank});
+});
+
+let months=12,order="need",pick=null,openRow=null,first=true;
+
+/* ---- top ---- */
+$("#when").innerHTML="Updated <b>"+esc(fmt(DATA.run_date))+"</b><br>Health Canada import list<br>issued <b>"+esc(fmt(DATA.issued)||"unknown")+"</b>";
+const F={
+  short:r=>r.open.length>0,
+  gap:r=>r.kind==="gap",
+  hgap:r=>r.hk&&r.kind==="gap",
+  soon:r=>r.soon,
+  hikma:r=>r.hk};
+function n(k){return rows.filter(F[k]).length}
+// Inline spans rather than buttons, so a phrase wraps like the sentence it
+// is part of. Keyboard users reach them with Tab and press Enter.
+function chip(k,txt,cls){return '<span role="button" tabindex="0" data-f="'+k+'" class="f '+(cls||"")+'" aria-pressed="'+(pick===k)+'">'+txt+'</span>'}
+function story(){
+  const s=n("short"),g=n("gap"),hg=n("hgap"),so=n("soon"),hk=n("hikma");
+  $("#story").innerHTML="Of the "+rows.length+" entries on Health Canada’s Tier 3 list, "+
+    chip("short",s+" are short or about to be")+". "+
+    chip("gap",g+" have nobody cleared to import","gap")+
+    (hg?", including "+chip("hgap",hg+" that Hikma makes","gap"):"")+". "+
+    "Hikma makes "+chip("hikma",hk+" of the "+rows.length)+
+    (so?", and "+chip("soon",so+" import permits run out within 30 days")+".":".")+
+    (pick?' <span role="button" tabindex="0" class="f reset" data-f="">Show everything</span>':"");
+}
+const age=Math.floor((today-D(DATA.run_date))/864e5);
+if(age>DATA.stale_days)$("#stale").innerHTML='<p class="stale">This tracker last updated '+esc(fmt(DATA.run_date))+', '+age+' days ago. The weekly update may have failed, so treat it as out of date.</p>';
+if(!DATA.first_run){const w=$("#week");w.hidden=false;
+  w.innerHTML=DATA.changes.length?"<summary>What changed since last week ("+DATA.changes.length+")</summary><ul>"+DATA.changes.map(c=>"<li>"+esc(c)+"</li>").join("")+"</ul>":"<summary>Nothing changed since last week</summary>";}
+
+/* ---- axis ---- */
+function windowOf(){const s=new Date(today.getFullYear(),today.getMonth()-3,1);
+  const e=new Date(today.getFullYear(),today.getMonth()+months+1,1);return[s,e];}
+function axis(){
+  const[s,e]=windowOf(),span=e-s,pos=d=>(d-s)/span*100;let t="",g="";
+  const step=months>12?3:1;
+  for(let d=new Date(s);d<e;d.setMonth(d.getMonth()+1)){
+    const yr=d.getMonth()===0,p=pos(d);
+    if(yr||d.getMonth()%step===0)t+='<span class="tick'+(yr?" yr":"")+'" style="left:'+p+'%">'+(yr?d.getFullYear():d.toLocaleDateString("en-CA",{month:"short"}))+"</span>";
+    g+='<i class="'+(yr?"yr":"")+'" style="left:'+p+'%"></i>';
+  }
+  $("#ticks").innerHTML=t+'<span class="today" style="left:'+pos(today)+'%"><b>Today</b></span>';
+  return{s,e,pos,g};
+}
+
+/* ---- lanes ---- */
+function bar(cls,a,b,ax,label,extra){
+  let st=D(a)||ax.s,en=D(b),open=!en;if(!en)en=ax.e;
+  if(en<ax.s||st>ax.e)return"";
+  let c=cls;if(st<ax.s){st=ax.s;c+=" cut"}if(en>ax.e){en=ax.e;c+=" open"}if(open)c+=" open";
+  const l=ax.pos(st),w=Math.max(ax.pos(en)-l,.6);
+  return '<span class="bar '+c+'" title="'+esc(label)+'" style="left:'+l+'%;width:'+w+'%;'+(extra||"")+'"></span>';
+}
+function render(){
+  story();const ax=axis(),q=$("#q").value.trim().toLowerCase();
+  let list=rows.filter(r=>(!pick||F[pick](r))&&(!q||JSON.stringify(r).toLowerCase().includes(q)));
+  list.sort(order==="az"?(a,b)=>a.name.localeCompare(b.name):(a,b)=>a.rank-b.rank||a.name.localeCompare(b.name));
+  $("#count").textContent=list.length+" of "+rows.length+" shown";
+  if(!list.length){$("#lanes").innerHTML='<p class="none">Nothing matches that. Clear the search or choose Show everything.</p>';return}
+  $("#lanes").innerHTML=list.map((r,k)=>{
+    // Bars grow in once, lane by lane, on first load only.
+    const d=first?"animation-delay:"+Math.min(k*25,600)+"ms":"animation:none";
+    let b=r.reps.map(x=>{const cls=x.Status==="Actual shortage"?"sh":OPEN.includes(x.Status)?"ex":"dn";
+      return bar(cls,x["Start date"],x["End date"],ax,nice(x.Company)+": "+x.Status+" "+fmt(x["Start date"])+(x["End date"]?" to "+fmt(x["End date"]):", no end date"),d)}).join("");
+    b+=r.imports.map((i,j)=>{const cls="im"+(i.state==="Expiring"?" soon":i.state==="Expired"?" old":"");
+      return bar(cls,i.added,i.cutoff,ax,nice(i.importer)+" can import "+fmt(i.added)+" to "+(fmt(i.cutoff)||"no date"),"top:"+(44+(j%2)*13)+"px;"+d)}).join("");
+    return '<button class="lane'+(openRow===r.i?" on":"")+'" data-i="'+r.i+'"><div class="who"><div class="name">'+esc(r.name)+'</div><div class="line2"><span class="form">'+esc(r.forms)+'</span>'+
+      (r.hk?'<span class="hk" title="Hikma makes this">Hikma makes it</span>':"")+'</div><div class="say '+r.kind+'">'+esc(r.say)+'</div></div><div class="track"><div class="grid">'+ax.g+'</div>'+b+
+      '<span class="today" style="left:'+ax.pos(today)+'%"></span></div></button>';
+  }).join("");
+  first=false;
+}
+
+/* ---- drawer ---- */
+function tagOf(s){return s==="Actual shortage"?"sh":OPEN.includes(s)?"ex":"dn"}
+function show(i){
+  const r=rows.find(x=>x.i===i);if(!r)return;openRow=i;
+  let h='<p class="form">'+esc(r.forms)+'</p><h2>'+esc(r.name)+'</h2>'+
+    '<p class="verdict '+(r.kind==="gap"?"gap":"")+'">'+esc(r.say)+'.</p>';
+  h+='<h3>Hikma</h3><p class="hikma">'+(r.hk?esc(r.hikma_us):'<span class="muted">Not in Hikma’s US injectables catalog.</span>')+
+    (r.hikma_ca==="Yes"?'<br><span class="muted">Also in the Hikma Canada portfolio.</span>':"")+'</p>';
+  h+='<h3>Shortage reports</h3>'+(r.reports.length?r.reports.map(x=>'<div class="item"><div class="row1"><b>'+esc(nice(x.Company))+'</b><span class="tag '+tagOf(x.Status)+'">'+esc(x.Status)+'</span></div><div class="meta">'+
+    esc(nice(x["Brand name"]))+(x.Strength?", "+esc(x.Strength.toLowerCase()):"")+(x["Form match"]==="Yes"?"":", "+esc(x["Dosage form"])+" (other form)")+'<br>'+
+    (x["Start date"]?esc(fmt(x["Start date"]))+(x["End date"]?" to "+esc(fmt(x["End date"])):", no end date given"):"No dates given")+
+    (x["Tier 3"]==="Yes"?", Tier 3":"")+'<br>Health Canada report '+esc(x["Report ID"])+'</div></div>').join(""):'<p class="muted">None in the last two years.</p>');
+  h+='<h3>Import permits</h3>'+(r.imports.length?r.imports.map(i=>'<div class="item"><div class="row1"><b>'+esc(nice(i.importer))+'</b><span class="tag '+(i.state==="Active"?"ok":i.state==="Expiring"?"ex":"dn")+'">'+
+    esc(i.state==="Expiring"?"Ends soon":i.state)+'</span></div><div class="meta">'+esc(i.product)+'<br>From '+esc((i.origin||"abroad").split(",")[0])+', '+esc(fmt(i.added))+' to '+esc(fmt(i.cutoff)||i.cutoff_raw||"no end date")+'</div></div>').join(""):'<p class="muted">Nobody has been cleared to import this.</p>');
+  if(r.changed)h+='<h3>Changed since last week</h3><p>'+esc(r.changed)+'</p>';
+  $("#dbody").innerHTML=h;$("#drawer").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");
+  $("#shade").classList.add("on");document.querySelectorAll(".lane").forEach(l=>l.classList.toggle("on",+l.dataset.i===i));$("#close").focus();
+}
+function hide(){$("#drawer").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");$("#shade").classList.remove("on");
+  const was=openRow;openRow=null;document.querySelectorAll(".lane.on").forEach(l=>l.classList.remove("on"));
+  const l=document.querySelector('.lane[data-i="'+was+'"]');if(l)l.focus();}
+
+/* ---- wiring ---- */
+document.addEventListener("click",e=>{
+  const f=e.target.closest("[data-f]");if(f){pick=f.dataset.f===pick||!f.dataset.f?null:f.dataset.f;render();return}
+  const m=e.target.closest("#range button");if(m){months=+m.dataset.m;sync();render();return}
+  const o=e.target.closest("#sort button");if(o){order=o.dataset.s;sync();render();return}
+  const l=e.target.closest(".lane");if(l){show(+l.dataset.i);return}
+  if(e.target.closest("#close")||e.target.id==="shade")hide();
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&openRow!==null)hide();
+  if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches(".story .f")){e.preventDefault();e.target.click();
+    const k=e.target.dataset.f;requestAnimationFrame(()=>{const n=document.querySelector('.story .f[data-f="'+k+'"]');if(n)n.focus()})}
+});
 $("#q").addEventListener("input",render);
-$("#stage").addEventListener("change",render);
-$("#foot").innerHTML="Shortage reports: Health Product Shortages Canada, "+
-DATA.scanned+" reports scanned. Importation list: "+DATA.import_rows+
-" rows from canada.ca.";
-if(!DATA.show_notes){$("#stage").hidden=true;
-document.querySelectorAll("th").forEach(function(th){
-if(/Stage|Notes/.test(th.textContent))th.hidden=true})}
-render()})();
+function sync(){document.querySelectorAll("#range button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.m===months));
+  document.querySelectorAll("#sort button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===order));}
+sync();render();
+
+$("#foot").innerHTML="Shortage reports come from Health Product Shortages Canada ("+Number(DATA.scanned).toLocaleString("en-CA")+
+  " reports checked). Import permits come from Health Canada’s List of Drugs for Exceptional Importation and Sale ("+DATA.import_rows+
+  " entries). Hikma products are from the Hikma US injectables catalog. Rebuilt every Monday."+
+  (DATA.warnings.length?"<details><summary>Data notes ("+DATA.warnings.length+")</summary><ul>"+DATA.warnings.map(w=>"<li>"+esc(w)+"</li>").join("")+"</ul></details>":"");
+})();
 </script></body></html>
