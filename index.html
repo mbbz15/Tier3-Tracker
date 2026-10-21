@@ -195,8 +195,16 @@ transform-origin:left center;animation:grow .6s cubic-bezier(.2,.8,.2,1) both}
 .bar.ex{background:repeating-linear-gradient(135deg,var(--coral) 0 6px,
 #ff8e8a 6px 12px)}
 .bar.dn{background:var(--fog)}
-.bar.open{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);
-mask-image:linear-gradient(90deg,#000 80%,transparent);border-radius:5px 0 0 5px}
+.bar.tail{background:none;border:2px dashed var(--coral);border-left:0;
+box-sizing:border-box;border-radius:0 5px 5px 0}
+.bar.past{border-top-right-radius:0;border-bottom-right-radius:0}
+.endlbl{position:absolute;transform:translate(6px,-1px);z-index:3;
+font:700 11.5px/1 var(--text);color:var(--coral-ink);background:var(--white);
+padding:3px 6px;border-radius:5px;white-space:nowrap;pointer-events:none;
+box-shadow:0 0 0 1px var(--line)}
+.endlbl.left{transform:translate(calc(-100% - 6px),-1px)}
+.endlbl.im{font-size:11px;font-weight:600;color:var(--navy);padding:2px 5px}
+.track{min-height:70px}
 .bar.cut{border-top-left-radius:0;border-bottom-left-radius:0}
 .bar.im{height:8px;background:var(--navy);border-radius:999px}
 .bar.im.soon{background:linear-gradient(90deg,var(--navy) 70%,var(--coral))}
@@ -477,25 +485,52 @@ function sellerList(){
 /* ---------- timeline ---------- */
 let months=12;
 function timeline(){
-  return '<p class="lede">Each molecule on one calendar. Coral is a shortage, blue is an emergency import permit. Coral with nothing under it means Canadian supply only. Click a row for names and dates.</p><div class="tools"><div class="seg" id="range">'+[[6,"6 months ahead"],[12,"1 year ahead"],[24,"2 years ahead"]].map(m=>'<button data-m="'+m[0]+'" aria-pressed="'+(months===m[0])+'">'+m[1]+'</button>').join("")+'</div></div>'+
-  '<div class="key" aria-hidden="true"><span><i class="sw" style="background:var(--coral)"></i>Short now</span><span><i class="sw" style="background:repeating-linear-gradient(135deg,var(--coral) 0 6px,#ff8e8a 6px 12px)"></i>Expected</span><span><i class="sw" style="background:var(--navy);height:7px;border-radius:9px"></i>Emergency import permit</span><span><i class="sw" style="background:linear-gradient(90deg,var(--navy) 60%,var(--coral));height:7px;border-radius:9px"></i>Ends within 30 days</span></div>'+
+  return '<p class="lede">Each molecule on one calendar. Coral is a shortage, blue is an emergency import permit. Coral with nothing under it means Canadian supply only. Each bar ends at its expected date; an arrow means it runs past the edge of the calendar. Click a row for names and dates.</p><div class="tools"><div class="seg" id="range">'+[[6,"6 months ahead"],[12,"1 year ahead"],[24,"2 years ahead"]].map(m=>'<button data-m="'+m[0]+'" aria-pressed="'+(months===m[0])+'">'+m[1]+'</button>').join("")+'</div></div>'+
+  '<div class="key" aria-hidden="true"><span><i class="sw" style="background:var(--coral)"></i>Short now</span><span><i class="sw" style="background:repeating-linear-gradient(135deg,var(--coral) 0 6px,#ff8e8a 6px 12px)"></i>Expected</span><span><i class="sw" style="background:var(--navy);height:7px;border-radius:9px"></i>Emergency import permit</span><span><i class="sw" style="background:linear-gradient(90deg,var(--navy) 60%,var(--coral));height:7px;border-radius:9px"></i>Ends within 30 days</span><span><i class="sw" style="border:2px dashed var(--coral);background:none;box-sizing:border-box"></i>No end date given</span></div>'+
   '<div class="cal"><div class="cal-in"><div class="axis"><div class="lbl">Most urgent first</div><div class="ticks" id="ticks"></div></div><div id="lanes"></div></div></div>';
 }
 let grown=false;
 function timelineDraw(){
-  const s=new Date(today.getFullYear(),today.getMonth()-3,1),e=new Date(today.getFullYear(),today.getMonth()+months+1,1),span=e-s,pos=d=>(d-s)/span*100;
+  const s=new Date(today.getFullYear(),today.getMonth()-3,1),e=new Date(today.getFullYear(),today.getMonth()+months+1,1),span=e-s,pos=d=>Math.min(100,Math.max(0,(d-s)/span*100));
   let t="",g="";const step=months>12?3:1;
   for(let d=new Date(s);d<e;d.setMonth(d.getMonth()+1)){const yr=d.getMonth()===0,p=pos(d);
     if(yr||d.getMonth()%step===0)t+='<span class="tick'+(yr?" yr":"")+'" style="left:'+p+'%">'+(yr?d.getFullYear():d.toLocaleDateString("en-CA",{month:"short"}))+"</span>";
     g+='<i class="'+(yr?"yr":"")+'" style="left:'+p+'%"></i>';}
   $("#ticks").innerHTML=t+'<span class="today" style="left:'+pos(today)+'%"><b>Today</b></span>';
-  const bar=(cls,a,b,label,extra)=>{let st=D(a)||s,en=D(b),open=!en;if(!en)en=e;if(en<s||st>e)return"";let c=cls;
-    if(st<s){st=s;c+=" cut"}if(en>e){en=e;c+=" open"}if(open)c+=" open";const l=pos(st),w=Math.max(pos(en)-l,.6);
-    return '<span class="bar '+c+'" title="'+esc(label)+'" style="left:'+l+'%;width:'+w+'%;'+(extra||"")+'"></span>'};
+  const day=864e5,plus=(d,n)=>new Date(+d+n*day);
+  const dt=d=>d.toLocaleDateString("en-CA",d.getFullYear()===today.getFullYear()?{month:"short",day:"numeric"}:{month:"short",day:"numeric",year:"numeric"});
+  // One segment, clipped to the window. "past" marks a bar that runs on
+  // beyond the right edge, so it gets an arrow rather than looking endless.
+  const seg=(cls,a,b,label,top,an)=>{if(!a||!b||b<s||a>e)return"";let c=cls;if(a<s)c+=" cut";if(b>e)c+=" past";
+    const l=pos(a<s?s:a),w=Math.max(pos(b>e?e:b)-l,.6);
+    return '<span class="bar '+c+'" title="'+esc(label)+'" style="left:'+l+'%;width:'+w+'%;top:'+top+'px;'+an+'"></span>'};
+  // A label where a bar ends, flipped inside the bar near the right edge.
+  const lbl=(d,txt,top,cls)=>{if(d<s)return"";const p=d>e?100:pos(d);
+    return '<span class="endlbl'+(cls?" "+cls:"")+(p>80?" left":"")+'" style="left:'+p+'%;top:'+top+'px">'+esc(txt)+'</span>'};
+  const stale=x=>x.Updated&&-days(x.Updated)>DATA.stale_report_days;
   const list=rows.slice().sort((a,b)=>a.rank-b.rank||a.name.localeCompare(b.name));
   $("#lanes").innerHTML=list.map((r,k)=>{const an=grown?"animation:none":"animation-delay:"+Math.min(k*25,600)+"ms";
-    let b=r.reps.map(x=>bar(x.Status==="Actual shortage"?"sh":OPEN.includes(x.Status)?"ex":"dn",x["Start date"],x["End date"],nice(x.Company)+": "+word(x.Status),an)).join("");
-    b+=r.imports.map((i,j)=>bar("im"+(i.state==="Expiring"?" soon":i.state==="Expired"?" old":""),i.added,i.cutoff,importer(i.importer)+" import permit until "+(fmt(i.cutoff)||"no date"),"top:"+(38+(j%2)*12)+"px;"+an)).join("");
+    let b="";
+    // Closed reports: grey, start to end.
+    r.reps.filter(x=>!OPEN.includes(x.Status)).forEach(x=>{b+=seg("dn",D(x["Start date"]),D(x["End date"]),nice(x.Company)+": "+word(x.Status),16,an)});
+    // The open shortage as one bar, from its earliest start to the date in
+    // the headline, so every bar visibly ends: at the expected return
+    // date, at an arrow past the edge, or in a dashed stub marked
+    // "no end date". It used to fade into the edge and read as endless.
+    if(r.head){
+      const use=r.open.filter(x=>!stale(x)).length?r.open.filter(x=>!stale(x)):r.open;
+      const st=use.map(x=>D(x["Start date"])).filter(Boolean).sort((a,b)=>a-b)[0]||today;
+      const cls=r.head.Status==="Actual shortage"?"sh":"ex",en=D(r.end),who=word(r.head.Status);
+      const disc=r.head.Status==="To be discontinued";
+      if(en&&en>=today){b+=seg(cls,st,en,who+" until "+fmt(r.end),16,an)+lbl(en,(en>e?"back "+dt(en)+" →":"back "+dt(en)),14,"");}
+      else if(en){b+=seg(cls,st,en,who,16,an)+seg(cls+" tail",en,today,"Still open after the expected date",16,an)+lbl(today,"still open, was due "+dt(en),14,"");}
+      else{const from=st>today?st:today,stub=plus(from,45);
+        b+=(st<from?seg(cls,st,from,who,16,an):"")+seg(cls+" tail",from,stub,"No end date given",16,an)+lbl(stub,disc?"discontinued from "+dt(st):"no end date given",14,"");}
+    }
+    // Import permits: each ends at its cutoff, labelled while still live.
+    r.imports.forEach((i,j)=>{const top=40+(j%2)*12,a=D(i.added),z=D(i.cutoff);
+      b+=seg("im"+(i.state==="Expiring"?" soon":i.state==="Expired"?" old":""),a,z,importer(i.importer)+" import permit until "+(fmt(i.cutoff)||"no date"),top,an);
+      if(z&&i.state!=="Expired")b+=lbl(z,"permit to "+dt(z)+(z>e?" →":""),top-3,"im");});
     return '<button class="lane" data-i="'+r.i+'"><div class="who"><div class="name">'+esc(r.name)+'</div><div class="sub">'+esc(r.forms)+badge(r)+'</div></div><div class="track"><div class="grid">'+g+'</div>'+b+'<span class="today" style="left:'+pos(today)+'%"></span></div></button>'}).join("");
   grown=true;
 }
