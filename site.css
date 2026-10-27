@@ -79,3 +79,7 @@ box-shadow:0 0 0 1px var(--coral);outline:none}
 .snap{padding:20px 16px 6px}
 .rep{grid-template-columns:1fr 1fr}
 }
+
+a.src{color:var(--navy-2);text-decoration:underline;text-decoration-style:dotted;
+text-underline-offset:3px}
+a.src:hover,a.src:focus-visible{color:var(--coral-ink);text-decoration-style:solid}

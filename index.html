@@ -40,6 +40,8 @@ const age=s=>{const d=D(s);return d?Math.round((today-d)/864e5):null};
 const WORD={"Actual shortage":"Short now","Anticipated shortage":"Expected","To be discontinued":"Being discontinued","Resolved":"Resolved","Discontinued":"Discontinued","Avoided shortage":"Avoided"};
 const TAG=s=>s==="Actual shortage"?"sh":(s==="Anticipated shortage"||s==="To be discontinued")?"ex":"dn";
 const nice=s=>String(s||"").toLowerCase().replace(/(^|[ (.&,/-])([a-z])/g,(m,a,b)=>a+b.toUpperCase()).replace(/\b(Ulc|Llc|Usp|Bp|Gmbh|Inc)\b/g,w=>({Ulc:"ULC",Llc:"LLC",Usp:"USP",Bp:"BP",Gmbh:"GmbH",Inc:"Inc"})[w]);
+// Each report links to its page on Health Product Shortages Canada.
+const hcReport=r=>"https://healthproductshortages.ca/"+(/discontinu/i.test(r.status||"")?"discontinuance":"shortage")+"/"+encodeURIComponent(r.report_id);
 const get=u=>fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
 
 get("snapshot.json").then(s=>{
@@ -56,7 +58,7 @@ get("snapshot.json").then(s=>{
   h+=s.rows.map(r=>'<div class="rep"><div><div class="name">'+esc(r.molecule)+(r.route?' <span class="route'+(/Oral/.test(r.route)?' oral':'')+'">'+esc(r.route)+'</span>':'')+'</div>'+(r.form?'<div class="small">'+esc(r.form)+'</div>':'')+'<div class="match'+(r.match==="Direct"?'':' diff')+'">'+(r.match?'<b>'+esc(r.match)+'</b> · ':'')+(r.match==="Direct"?'Same strength and size as a Hikma product':r.same_strength?'Same strength as a Hikma product; container differs or not stated':'Hikma has this molecule, different strength')+'</div></div>'+
     '<div class="cell"><span class="tag '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+'</span>'+(r.days!==""&&r.days!=="unknown"?'<div class="small">'+esc(r.days)+' days</div>':'')+'</div>'+
     '<div class="cell">'+esc(nice(r.company))+'<div class="small">'+esc(r.strength)+'</div></div>'+
-    '<div class="cell small">Report '+esc(r.report_id)+'<br>updated '+esc(fmt(r.updated))+'</div></div>').join("");
+    '<div class="cell small"><a class="src" href="'+esc(hcReport(r))+'" target="_blank" rel="noopener">Health Canada report '+esc(r.report_id)+'</a><br>updated '+esc(fmt(r.updated))+'</div></div>').join("");
   $("#snap").innerHTML=h;
 });
 get("tier3/summary.json").then(t=>{if(t)$("#tier3-stat").innerHTML='<b>'+t.open+'</b> of '+t.entries+' short or expected · <b>'+t.gap+'</b> with no import permit'});
