@@ -53,6 +53,10 @@ minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:center;padding:14px 4px;
 border-top:1px solid var(--line)}
 .rep .name{font:700 18px/1.2 var(--display);color:var(--navy)}
 .rep .cell{font-size:14.5px;line-height:1.35}
+.route{display:inline-block;vertical-align:3px;margin-left:6px;
+font:700 11.5px/1 var(--text);border-radius:999px;padding:4px 8px;
+background:var(--navy);color:var(--white)}
+.route.oral{background:var(--mist);color:var(--navy)}
 .match{font-size:13px;font-weight:700;color:var(--navy-2)}
 .match.diff{color:var(--slate);font-weight:400}
 .choices{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;

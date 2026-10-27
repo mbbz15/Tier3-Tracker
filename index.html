@@ -27,7 +27,7 @@
 </a>
 </div>
 
-<footer>Shortage reports: Health Product Shortages Canada, checked every weekday at 7 AM. The snapshot lists reports filed since the last check that match a Hikma Canada product currently on the market.</footer>
+<footer><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the strength or container does not, or Health Canada does not state the size.<br><br>Shortage reports: Health Product Shortages Canada, checked every weekday at 7 AM. The snapshot lists reports filed since the last check that match a Hikma Canada product currently on the market.</footer>
 </main>
 <script>
 (function(){
@@ -43,7 +43,7 @@ const nice=s=>String(s||"").toLowerCase().replace(/(^|[ (.&,/-])([a-z])/g,(m,a,b
 const get=u=>fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
 
 get("snapshot.json").then(s=>{
-  if(!s){$("#snap").innerHTML='<p class="none">Today’s snapshot is not available yet.</p>';return}
+  if(!s){$("#snap").innerHTML='<p class="none">No update today.</p>';return}
   $("#when").innerHTML="Snapshot from <b>"+esc(fmt(s.run_date,{weekday:"long",month:"long",day:"numeric"}))+"</b>";
   $("#window").textContent="Reports filed "+fmt(s.window_start,{month:"short",day:"numeric"})+" to "+fmt(s.window_end,{month:"short",day:"numeric"});
   let h="";
@@ -52,8 +52,8 @@ get("snapshot.json").then(s=>{
   if(age(s.run_date)>4)h+='<p class="note">This snapshot is from '+esc(fmt(s.run_date))+'. The daily check may have stopped updating the site.</p>';
   if(!s.complete)h+='<p class="note">The daily check did not finish reading Health Canada’s data, so this list may be missing reports.</p>';
   const n=s.rows.length;
-  h+='<p class="lede">'+(n?'<b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products.':'No new shortage reports on Hikma products.')+'</p>';
-  h+=s.rows.map(r=>'<div class="rep"><div><div class="name">'+esc(r.molecule)+'</div><div class="match'+(r.same_strength?'':' diff')+'">'+(r.same_strength?'Same strength as a Hikma product':'Hikma has this molecule, different strength')+'</div></div>'+
+  h+='<p class="lede">'+(n?'<b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products.':'No update today. There are no new shortage reports on Hikma products.')+'</p>';
+  h+=s.rows.map(r=>'<div class="rep"><div><div class="name">'+esc(r.molecule)+(r.route?' <span class="route'+(/Oral/.test(r.route)?' oral':'')+'">'+esc(r.route)+'</span>':'')+'</div>'+(r.form?'<div class="small">'+esc(r.form)+'</div>':'')+'<div class="match'+(r.match==="Direct"?'':' diff')+'">'+(r.match?'<b>'+esc(r.match)+'</b> · ':'')+(r.match==="Direct"?'Same strength and size as a Hikma product':r.same_strength?'Same strength as a Hikma product; container differs or not stated':'Hikma has this molecule, different strength')+'</div></div>'+
     '<div class="cell"><span class="tag '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+'</span>'+(r.days!==""&&r.days!=="unknown"?'<div class="small">'+esc(r.days)+' days</div>':'')+'</div>'+
     '<div class="cell">'+esc(nice(r.company))+'<div class="small">'+esc(r.strength)+'</div></div>'+
     '<div class="cell small">Report '+esc(r.report_id)+'<br>updated '+esc(fmt(r.updated))+'</div></div>').join("");
