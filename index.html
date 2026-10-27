@@ -8,27 +8,32 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <link rel="stylesheet" href="site.css">
 </head><body>
-<main class="page">
-<div class="top">
+<header class="mast"><div class="wrap">
+<div>
 <h1>Drug Shortage Tracker<span class="dot" aria-hidden="true"></span></h1>
-<div class="when" id="when"></div>
+<p>Health Canada shortage reports on Hikma Canada products, checked every weekday at 7 AM.</p>
 </div>
-<section class="snap" aria-labelledby="snap-h">
-<div class="snap-head"><h2 id="snap-h">Today's shortage snapshot</h2><span class="small" id="window"></span></div>
-<div id="snap"><p class="none">Loading…</p></div>
+<div class="when" id="when"></div>
+</div></header>
+
+<main><div class="wrap">
+<section aria-labelledby="snap-h">
+<div class="head"><h2 id="snap-h">Today's shortage snapshot</h2><span class="window" id="window"></span></div>
+<div id="snap"><p class="lede">Loading…</p></div>
 </section>
 
-<div class="choices">
-<a class="choice" href="tier3/">
+<a class="tier" href="tier3/">
 <h3>Tier 3 tracker</h3>
 <p>Health Canada's highest-impact shortages: who has an emergency import permit, who sells it in Canada, and where Hikma has a product.</p>
-<div class="stat" id="tier3-stat"></div>
-<span class="go">Open the Tier 3 tracker →</span>
+<div class="figs" id="tier3-stat"></div>
+<span class="go">Open the Tier 3 tracker</span>
 </a>
-</div>
 
-<footer><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the strength or container does not, or Health Canada does not state the size.<br><br>Shortage reports: Health Product Shortages Canada, checked every weekday at 7 AM. The snapshot lists reports filed since the last check that match a Hikma Canada product currently on the market.</footer>
-</main>
+<footer>
+<p><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the strength or container does not, or Health Canada does not state the size.</p>
+<p>Shortage reports: Health Product Shortages Canada. Each report number links to its page there. The snapshot lists reports filed since the last weekday check that match a Hikma Canada product currently on the market.</p>
+</footer>
+</div></main>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -44,24 +49,36 @@ const nice=s=>String(s||"").toLowerCase().replace(/(^|[ (.&,/-])([a-z])/g,(m,a,b
 const hcReport=r=>"https://healthproductshortages.ca/"+(/discontinu/i.test(r.status||"")?"discontinuance":"shortage")+"/"+encodeURIComponent(r.report_id);
 const get=u=>fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
 
+const band=r=>{const k=r.route||"";return'<div class="band'+(/^Oral$/.test(k)?" oral":/Injection/.test(k)?"":" other")+'"><span>'+esc(k||"Route not given")+'</span></div>'};
+const fit=r=>r.match==="Direct"?'<div class="fit direct"><b>Direct</b>Same strength and size as a Hikma product</div>':
+  '<div class="fit"><b>Indirect</b>'+(r.same_strength?"Same strength as a Hikma product; the container differs or is not stated":"Hikma has this molecule in a different strength")+'</div>';
+const stamp=r=>'<div class="stamp '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+(r.status==="Actual shortage"&&r.days!==""&&r.days!=="unknown"?'<small>'+esc(r.days)+' days</small>':'')+'</div>';
+// Health Canada writes "1MG/ML"; a label reads "1 mg/mL".
+const dose=s=>String(s||"").toLowerCase().replace(/(\d)\s*([a-z])/g,"$1 $2").replace(/\bml\b/g,"mL");
+const label=(r,k)=>'<article class="label" style="animation-delay:'+(k*70)+'ms">'+band(r)+
+  '<div class="body"><div class="top"><div class="maker">'+esc(nice(r.company))+'</div>'+stamp(r)+'</div>'+
+  '<div class="mol'+(r.molecule.length>13?' long':'')+'">'+esc(r.molecule)+'</div>'+
+  '<div class="dose">'+(r.strength?'<b>'+esc(dose(r.strength))+'</b> ':'')+'<span>'+esc(r.form)+'</span></div>'+
+  fit(r)+
+  '<div class="fine">'+(r.din?'<span>DIN <b>'+esc(r.din)+'</b></span>':'')+'<span><a class="src" href="'+esc(hcReport(r))+'" target="_blank" rel="noopener">Health Canada report <b>'+esc(r.report_id)+'</b></a></span><span>Updated <b>'+esc(fmt(r.updated,{month:"short",day:"numeric"}))+'</b></span></div></div></article>';
+const blank='<div class="shelf"><div class="blank"><b>No update today</b><span>There are no new shortage reports on Hikma products since the last check.</span></div></div>';
+
 get("snapshot.json").then(s=>{
-  if(!s){$("#snap").innerHTML='<p class="none">No update today.</p>';return}
-  $("#when").innerHTML="Snapshot from <b>"+esc(fmt(s.run_date,{weekday:"long",month:"long",day:"numeric"}))+"</b>";
+  if(!s){$("#snap").innerHTML=blank;return}
+  $("#when").innerHTML="Snapshot from<b>"+esc(fmt(s.run_date,{weekday:"long",month:"long",day:"numeric"}))+"</b>";
   $("#window").textContent="Reports filed "+fmt(s.window_start,{month:"short",day:"numeric"})+" to "+fmt(s.window_end,{month:"short",day:"numeric"});
   let h="";
   // A weekend leaves Friday's snapshot up; anything older means the daily
   // check stopped publishing.
   if(age(s.run_date)>4)h+='<p class="note">This snapshot is from '+esc(fmt(s.run_date))+'. The daily check may have stopped updating the site.</p>';
-  if(!s.complete)h+='<p class="note">The daily check did not finish reading Health Canada’s data, so this list may be missing reports.</p>';
+  if(!s.complete)h+='<p class="note">The daily check did not finish reading Health Canada\u2019s data, so this list may be missing reports.</p>';
   const n=s.rows.length;
-  h+='<p class="lede">'+(n?'<b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products.':'No update today. There are no new shortage reports on Hikma products.')+'</p>';
-  h+=s.rows.map(r=>'<div class="rep"><div><div class="name">'+esc(r.molecule)+(r.route?' <span class="route'+(/Oral/.test(r.route)?' oral':'')+'">'+esc(r.route)+'</span>':'')+'</div>'+(r.form?'<div class="small">'+esc(r.form)+'</div>':'')+'<div class="match'+(r.match==="Direct"?'':' diff')+'">'+(r.match?'<b>'+esc(r.match)+'</b> · ':'')+(r.match==="Direct"?'Same strength and size as a Hikma product':r.same_strength?'Same strength as a Hikma product; container differs or not stated':'Hikma has this molecule, different strength')+'</div></div>'+
-    '<div class="cell"><span class="tag '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+'</span>'+(r.days!==""&&r.days!=="unknown"?'<div class="small">'+esc(r.days)+' days</div>':'')+'</div>'+
-    '<div class="cell">'+esc(nice(r.company))+'<div class="small">'+esc(r.strength)+'</div></div>'+
-    '<div class="cell small"><a class="src" href="'+esc(hcReport(r))+'" target="_blank" rel="noopener">Health Canada report '+esc(r.report_id)+'</a><br>updated '+esc(fmt(r.updated))+'</div></div>').join("");
+  if(!n){$("#snap").innerHTML=h+blank;return}
+  h+='<p class="lede"><b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products.</p>';
+  h+='<div class="shelf">'+s.rows.map(label).join("")+'</div>';
   $("#snap").innerHTML=h;
 });
-get("tier3/summary.json").then(t=>{if(t)$("#tier3-stat").innerHTML='<b>'+t.open+'</b> of '+t.entries+' short or expected · <b>'+t.gap+'</b> with no import permit'});
+get("tier3/summary.json").then(t=>{if(t)$("#tier3-stat").innerHTML='<div><b>'+t.open+'</b>of '+t.entries+' short or expected</div><div><b>'+t.gap+'</b>with no import permit</div><div><b>'+t.hikma+'</b>of those with a Hikma product</div>'});
 })();
 </script>
 </body></html>
