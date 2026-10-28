@@ -72,6 +72,10 @@ display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12.5px;color:var(--slate)}
 .fit b{display:inline-block;margin-right:6px;padding:2px 8px;border-radius:4px;
 font-size:12.5px;border:1.5px solid var(--navy);color:var(--navy)}
 .fit.direct b{background:var(--navy);color:var(--white)}
+/* A launch is not yet on the market: flagged so nobody reads it as stock. */
+.launch{display:inline-block;margin-top:10px;padding:3px 9px;border-radius:4px;
+font-size:12.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;
+background:var(--coral-tint);color:var(--coral-ink)}
 
 /* The status, stamped on at an angle like a pharmacy "back order" stamp. */
 .stamp{flex:none;margin:2px -2px 0 0;transform:rotate(-6deg);

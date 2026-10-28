@@ -31,7 +31,7 @@
 
 <footer>
 <p><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the strength or container does not, or Health Canada does not state the size.</p>
-<p>Shortage reports: Health Product Shortages Canada. Each report number links to its page there. The snapshot lists reports filed since the last weekday check that match a Hikma Canada product currently on the market.</p>
+<p>Shortage reports: Health Product Shortages Canada. Each report number links to its page there. The snapshot lists reports filed since the last weekday check that match a Hikma Canada product, on the market or a future launch.</p>
 </footer>
 </div></main>
 <script>
@@ -50,8 +50,11 @@ const hcReport=r=>"https://healthproductshortages.ca/"+(/discontinu/i.test(r.sta
 const get=u=>fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
 
 const band=r=>{const k=r.route||"";return'<div class="band'+(/^Oral$/.test(k)?" oral":/Injection/.test(k)?"":" other")+'"><span>'+esc(k||"Route not given")+'</span></div>'};
-const fit=r=>r.match==="Direct"?'<div class="fit direct"><b>Direct</b>Same strength and size as a Hikma product</div>':
-  '<div class="fit"><b>Indirect</b>'+(r.same_strength?"Same strength as a Hikma product; the container differs or is not stated":"Hikma has this molecule in a different strength")+'</div>';
+// A launch is a molecule Hikma Canada plans to sell but does not yet.
+const launch=r=>r.launch?'<div class="launch">Hikma future launch</div>':'';
+const P=r=>r.launch?"Hikma's planned product":"a Hikma product";
+const fit=r=>r.match==="Direct"?'<div class="fit direct"><b>Direct</b>Same strength and size as '+P(r)+'</div>':
+  '<div class="fit"><b>Indirect</b>'+(r.same_strength?"Same strength as "+P(r)+"; the container differs or is not stated":(r.launch?"Hikma's planned product is a different strength":"Hikma has this molecule in a different strength"))+'</div>';
 const stamp=r=>'<div class="stamp '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+(r.status==="Actual shortage"&&r.days!==""&&r.days!=="unknown"?'<small>'+esc(r.days)+' days</small>':'')+'</div>';
 // Health Canada writes "1MG/ML"; a label reads "1 mg/mL".
 const dose=s=>String(s||"").toLowerCase().replace(/(\d)\s*([a-z])/g,"$1 $2").replace(/\bml\b/g,"mL");
@@ -59,9 +62,9 @@ const label=(r,k)=>'<article class="label" style="animation-delay:'+(k*70)+'ms">
   '<div class="body"><div class="top"><div class="maker">'+esc(nice(r.company))+'</div>'+stamp(r)+'</div>'+
   '<div class="mol'+(r.molecule.length>13?' long':'')+'">'+esc(r.molecule)+'</div>'+
   '<div class="dose">'+(r.strength?'<b>'+esc(dose(r.strength))+'</b> ':'')+'<span>'+esc(r.form)+'</span></div>'+
-  fit(r)+
+  launch(r)+fit(r)+
   '<div class="fine">'+(r.din?'<span>DIN <b>'+esc(r.din)+'</b></span>':'')+'<span><a class="src" href="'+esc(hcReport(r))+'" target="_blank" rel="noopener">Health Canada report <b>'+esc(r.report_id)+'</b></a></span><span>Updated <b>'+esc(fmt(r.updated,{month:"short",day:"numeric"}))+'</b></span></div></div></article>';
-const blank='<div class="shelf"><div class="blank"><b>No update today</b><span>There are no new shortage reports on Hikma products since the last check.</span></div></div>';
+const blank='<div class="shelf"><div class="blank"><b>No update today</b><span>There are no new shortage reports on Hikma products, current or future launches, since the last check.</span></div></div>';
 
 get("snapshot.json").then(s=>{
   if(!s){$("#snap").innerHTML=blank;return}
@@ -74,7 +77,8 @@ get("snapshot.json").then(s=>{
   if(!s.complete)h+='<p class="note">The daily check did not finish reading Health Canada\u2019s data, so this list may be missing reports.</p>';
   const n=s.rows.length;
   if(!n){$("#snap").innerHTML=h+blank;return}
-  h+='<p class="lede"><b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products.</p>';
+  const L=s.rows.filter(r=>r.launch).length;
+  h+='<p class="lede"><b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products'+(L?' ('+(L===n?(n===1?'a future launch':'all future launches'):L+' on future launches')+')':'')+'.</p>';
   h+='<div class="shelf">'+s.rows.map(label).join("")+'</div>';
   $("#snap").innerHTML=h;
 });
