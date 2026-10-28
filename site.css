@@ -62,9 +62,10 @@ border-right:1px solid var(--line)}
 .band.other{background:var(--fog);color:var(--navy)}
 .body{padding:16px 18px 14px;min-width:0}
 .top{display:flex;justify-content:space-between;align-items:center;
-gap:12px;min-height:34px}
-.maker{min-width:0;font-size:13px;color:var(--slate);white-space:nowrap;overflow:hidden;
-text-overflow:ellipsis}
+gap:12px;min-height:34px;margin-bottom:4px}
+/* Wraps rather than cut: "Mantra Pharma…" hid which company it was. */
+.maker{min-width:0;font-size:13px;line-height:1.3;color:var(--slate);
+overflow-wrap:anywhere}
 .mol{font:800 27px/1.02 var(--display);color:var(--navy);margin:8px 0 6px;
 letter-spacing:-.02em;overflow-wrap:break-word;hyphens:auto}
 .mol.long{font-size:22px}

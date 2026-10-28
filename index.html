@@ -31,8 +31,8 @@
 
 <footer>
 <p class="stamps" id="stamps"></p>
-<p><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the strength or container does not, or Health Canada does not state the size.</p>
-<p>Shortage reports: Health Product Shortages Canada. Each report number links to its page there. The snapshot lists reports filed since the last weekday check that match a Hikma Canada product, on the market or a future launch.</p>
+<p><b>Direct</b> means the strength and the container size both match a Hikma product, so it is a like-for-like substitute. <b>Indirect</b> means the molecule matches but the form, strength or container does not, or Health Canada does not state them.</p>
+<p>Shortage reports: Health Product Shortages Canada. Each report number links to its page there. The snapshot lists reports filed on the previous weekday and today (Friday to Monday after a weekend) that match a Hikma Canada product, on the market or a future launch. Shortages expected to end within 7 days, or 14 days for expected shortages, are left out.</p>
 </footer>
 </div></main>
 <script>
@@ -41,11 +41,12 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const D=s=>s?new Date(String(s).slice(0,10)+"T00:00:00"):null;
 const fmt=(s,o)=>{const d=D(s);return d&&!isNaN(d)?d.toLocaleDateString("en-CA",o||{month:"short",day:"numeric",year:"numeric"}):"";};
-const today=new Date();today.setHours(0,0,0,0);
-const age=s=>{const d=D(s);return d?Math.round((today-d)/864e5):null};
 const WORD={"Actual shortage":"Current shortage","Anticipated shortage":"Expected","To be discontinued":"Being discontinued","Resolved":"Resolved","Discontinued":"Discontinued","Avoided shortage":"Avoided"};
 const TAG=s=>s==="Actual shortage"?"sh":(s==="Anticipated shortage"||s==="To be discontinued")?"ex":"dn";
-const nice=s=>String(s||"").toLowerCase().replace(/(^|[ (.&,/-])([a-z])/g,(m,a,b)=>a+b.toUpperCase()).replace(/\b(Ulc|Llc|Usp|Bp|Gmbh|Inc)\b/g,w=>({Ulc:"ULC",Llc:"LLC",Usp:"USP",Bp:"BP",Gmbh:"GmbH",Inc:"Inc"})[w]);
+// Short all-capital words are acronyms ("AA PHARMA", "BGP PHARMA"), kept
+// as written; common short words are not.
+const SMALL=new Set(["INC","LTD","CO","OF","THE","AND","DE","DU","LA","LE","ET","FOR","DES","PRO","LAB","USA"]);
+const nice=s=>String(s||"").split(/(\s+)/).map(w=>/^[A-Z]{2,3}$/.test(w)&&!SMALL.has(w)?w:w.toLowerCase().replace(/(^|[(.&,/-])([a-z])/g,(m,a,b)=>a+b.toUpperCase())).join("").replace(/\b(Ulc|Llc|Usp|Bp|Gmbh|Usa)\b/g,w=>({Ulc:"ULC",Llc:"LLC",Usp:"USP",Bp:"BP",Gmbh:"GmbH",Usa:"USA"})[w]);
 // Each report links to its page on Health Product Shortages Canada.
 const hcReport=r=>"https://healthproductshortages.ca/"+(/discontinu/i.test(r.status||"")?"discontinuance":"shortage")+"/"+encodeURIComponent(r.report_id);
 // Exact times, shown in Toronto time wherever the reader is.
@@ -57,10 +58,17 @@ const band=r=>{const k=r.route||"";return'<div class="band'+(/^Oral$/.test(k)?" 
 const launch=r=>r.launch?'<div class="launch">Hikma future launch</div>':'';
 const P=r=>r.launch?"Hikma's planned product":"a Hikma product";
 const fit=r=>r.match==="Direct"?'<div class="fit direct"><b>Direct</b>Same strength and size as '+P(r)+'</div>':
-  '<div class="fit"><b>Indirect</b>'+(r.same_strength?"Same strength as "+P(r)+"; the container differs or is not stated":(r.launch?"Hikma's planned product is a different strength":"Hikma has this molecule in a different strength"))+'</div>';
-// days is the time left until Health Canada's expected end date, not how
-// long the shortage has run; a bare "47 days" was read the wrong way.
-const stamp=r=>'<div class="stamp '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+(r.status==="Actual shortage"&&r.days!==""&&r.days!=="unknown"?'<small>ends in '+esc(r.days)+' day'+(r.days==1?'':'s')+'</small>':'')+'</div>';
+  '<div class="fit"><b>Indirect</b>'+(
+    r.other_form?(r.launch?"Hikma's planned product is an injection":"Hikma's product is an injection")+"; this one is "+String(r.route).toLowerCase():
+    r.same_strength?"Same strength as "+P(r)+"; the container differs or is not stated":
+    !r.strength?"Health Canada does not state the strength":
+    r.launch?"Hikma's planned product is a different strength":"Hikma has this molecule in a different strength")+'</div>';
+// The expected end date itself. A day count was read as days so far, was
+// one short (fixed at 7 AM), and was days out by Monday.
+// A snapshot written before "end" existed shows neither, rather than a
+// wrong "no end date given".
+const ends=r=>r.status!=="Actual shortage"||!("end" in r)?"":r.end?"ends "+fmt(r.end,{month:"short",day:"numeric"}):"no end date given";
+const stamp=r=>'<div class="stamp '+TAG(r.status)+'">'+esc(WORD[r.status]||r.status)+(ends(r)?'<small>'+esc(ends(r))+'</small>':'')+'</div>';
 // Health Canada writes "1MG/ML"; a label reads "1 mg/mL".
 const dose=s=>String(s||"").toLowerCase().replace(/(\d)\s*([a-z])/g,"$1 $2").replace(/\bml\b/g,"mL");
 const label=(r,k)=>'<article class="label" style="animation-delay:'+(k*70)+'ms">'+band(r)+
@@ -69,7 +77,16 @@ const label=(r,k)=>'<article class="label" style="animation-delay:'+(k*70)+'ms">
   '<div class="dose">'+(r.strength?'<b>'+esc(dose(r.strength))+'</b> ':'')+'<span>'+esc(r.form)+'</span></div>'+
   launch(r)+fit(r)+
   '<div class="fine">'+(r.din?'<span>DIN <b>'+esc(r.din)+'</b></span>':'')+'<span><a class="src" href="'+esc(hcReport(r))+'" target="_blank" rel="noopener">Health Canada report <b>'+esc(r.report_id)+'</b></a></span><span>Updated <b>'+esc(fmt(r.updated,{month:"short",day:"numeric"}))+'</b></span></div></div></article>';
-const blank='<div class="shelf"><div class="blank"><b>No update today</b><span>There are no new shortage reports on Hikma products, current or future launches, since the last check.</span></div></div>';
+const box=(b,t)=>'<div class="shelf"><div class="blank"><b>'+b+'</b><span>'+t+'</span></div></div>';
+const blank=box("No update today","There are no new shortage reports on Hikma products, current or future launches, since the last check.");
+// Never let a failure look like a quiet day.
+const partial=box("None found so far","The daily check did not finish, so reports may be missing. Check Health Canada directly before relying on this.");
+const missing=box("Snapshot not available","The daily snapshot could not be loaded. Refresh the page; if this persists, the daily check may have failed.");
+// The weekday whose 7 AM check should be up by now, in Toronto time.
+const expected=()=>{const p={};new Intl.DateTimeFormat("en-CA",{timeZone:"America/Toronto",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value);
+  const d=new Date(Date.UTC(+p.year,+p.month-1,+p.day));let late=(+p.hour)*60+(+p.minute)>=8*60;
+  for(;;){const w=d.getUTCDay();if(w>0&&w<6&&late)break;late=true;d.setUTCDate(d.getUTCDate()-1)}
+  return d.toISOString().slice(0,10)};
 
 const snapP=get("snapshot.json"),tierP=get("tier3/summary.json");
 // Footer: when the site last changed, and when each tool last read its
@@ -83,16 +100,16 @@ Promise.all([snapP,tierP]).then(([s,t])=>{
     row("Tier 3 sources last checked",at(t&&t.checked_at));
 });
 snapP.then(s=>{
-  if(!s){$("#snap").innerHTML=blank;return}
+  if(!s){$("#snap").innerHTML=missing;return}
   $("#when").innerHTML="Snapshot from<b>"+esc(fmt(s.run_date,{weekday:"long",month:"long",day:"numeric"}))+"</b>";
   $("#window").textContent="Reports filed "+fmt(s.window_start,{month:"short",day:"numeric"})+" to "+fmt(s.window_end,{month:"short",day:"numeric"});
   let h="";
-  // A weekend leaves Friday's snapshot up; anything older means the daily
-  // check stopped publishing.
-  if(age(s.run_date)>4)h+='<p class="note">This snapshot is from '+esc(fmt(s.run_date))+'. The daily check may have stopped updating the site.</p>';
+  // Flagged from the first missed weekday, not after 4 days: a failed
+  // Tuesday check used to leave Monday's list up as "today" until Saturday.
+  if(String(s.run_date)<expected())h+='<p class="note">This snapshot is from '+esc(fmt(s.run_date))+'. Today\u2019s check has not updated the site; it may have failed.</p>';
   if(!s.complete)h+='<p class="note">The daily check did not finish reading Health Canada\u2019s data, so this list may be missing reports.</p>';
   const n=s.rows.length;
-  if(!n){$("#snap").innerHTML=h+blank;return}
+  if(!n){$("#snap").innerHTML=h+(s.complete?blank:partial);return}
   const L=s.rows.filter(r=>r.launch).length;
   h+='<p class="lede"><b>'+n+'</b> new shortage report'+(n===1?'':'s')+' on Hikma products'+(L?' ('+(L===n?(n===1?'a future launch':'all future launches'):L+' on future launches')+')':'')+'.</p>';
   h+='<div class="shelf">'+s.rows.map(label).join("")+'</div>';
